@@ -82,10 +82,13 @@ float cnoise(vec3 P){
 void main(){
     vec4 modelVec =  modelMatrix * vec4(position, 1.0);
 
-    float elevation = sin(modelVec.x * uFrequencyX + uTime)
-                    * sin(modelVec.y * uFrequencyY + uTime)
+    float elevation = (
+                       sin(modelVec.y * uFrequencyY/2.0 - modelVec.x * uFrequencyX + uTime)
+                     + sin(modelVec.y * uFrequencyY + modelVec.x * uFrequencyX*2.0 + uTime)
+                     + cos(modelVec.x * uFrequencyX/2.0 + uTime)
+                     )
                     * uWaveElevation;
-
+    if(elevation < 0.0) elevation /= 2.0;
     for(float i = 1.0; i <= 4.0; i++)
         elevation -= abs(cnoise(vec3(modelVec.xy * 3.0 * i, uTime)) * 0.15 / i);
     modelVec.z += elevation;

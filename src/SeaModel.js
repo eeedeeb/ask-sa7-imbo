@@ -13,7 +13,7 @@ export class SeaModel {
      cube = new Three.BoxGeometry(0.4, 0.4, 0.4);
      cubeMat = new Three.MeshBasicMaterial();
      cubeMesh = new Three.Mesh(this.cube, this.cubeMat);
-     geometry = new Three.PlaneBufferGeometry(100, 100, 800, 800);
+     geometry = new Three.PlaneBufferGeometry(20, 20, 800, 800);
      material = new Three.ShaderMaterial({
          vertexShader: vertexShader,
          fragmentShader: fragmentShader,
@@ -54,14 +54,24 @@ export class SeaModel {
     }
     run(){
         this.material.uniforms.uTime.value = this.clock.getElapsedTime();
-        const x = this.geometry.attributes.position.array[1200000];
-        const y = this.geometry.attributes.position.array[1200001];
+        const x = 0;
+        const y = 0;
         this.cubeMesh.position.x = x;
         this.cubeMesh.position.y = y;
-        this.cubeMesh.position.z =
-            Math.sin(x * this.material.uniforms.uFrequencyX.value + this.clock.getElapsedTime())
-            * Math.sin(y * this.material.uniforms.uFrequencyY.value + this.clock.getElapsedTime())
+        this.cubeMesh.position.z =(
+             Math.sin(y * this.material.uniforms.uFrequencyY.value - x * this.material.uniforms.uFrequencyX.value + this.clock.getElapsedTime())
+             + Math.sin(y * this.material.uniforms.uFrequencyY.value + x * this.material.uniforms.uFrequencyX.value + this.clock.getElapsedTime())
+             + Math.cos( x * this.material.uniforms.uFrequencyX.value / 2 + this.clock.getElapsedTime())
+            )
             * this.material.uniforms.uWaveElevation.value
             -0.07;
+        if(this.cubeMesh.position.z < 0){
+            this.cubeMesh.position.z = this.cubeMesh.position.z / 2;
+        }
+    }
+
+    moveTo(x, y){
+        this.mesh.position.x = x;
+        this.mesh.position.y = y;
     }
 }
