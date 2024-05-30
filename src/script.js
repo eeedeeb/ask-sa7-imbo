@@ -44,8 +44,17 @@ camera.position.y = -4;
 camera.lookAt(new Vector3(0, 0, 0));
 const world = new World();
 world.init(scene);
-
-let go = false;
+document.addEventListener('keypress', function (evt){
+    if(evt.key === 'w'){
+        world.boatModel.moveAhead();
+    }
+    if(evt.key === 'a'){
+        world.boatModel.zAngle += 2;
+    }
+    if(evt.key === 'd'){
+        world.boatModel.zAngle -= 2;
+    }
+});
 //Animation
 const tick = () => {
     //render

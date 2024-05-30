@@ -10,6 +10,10 @@ export class Constant {
 
     static boatLength = 8;
 
+    static boatWidth = 4;
+
+    static boatHeight = 2;
+
     static boatMass = 700;
 
     static hullArea = 32;
