@@ -18,9 +18,10 @@ export class Physics {
     rudderDragForce = Force.initForce();
     rudderTotalForce = Force.initForce();
     segmaForces = Force.initForce();
-    totalHullResistance;
-    viscousResistance;
-    airResistance;
+    totalHullResistance = Force.initForce();
+    viscousResistance = Force.initForce();
+    waveMakingResistance = Force.initForce();
+    airResistance = Force.initForce();
 
     rudderTorque = Torque.initTorque();
     hullTorque;
@@ -58,6 +59,44 @@ export class Physics {
         const clockwise = (Controller.attributes.rudderAngle > 0);
         this.rudderTorque.calcTorqueIntensity(this.rudderTotalForce.intensity, Constant.boatLength / 2, clockwise);
     }
+
+
+    getViscousResistanceCoefficient() {
+        let reynoldsNumber = (Constant.boatLength * this.state.linearVelocity.intensity * Constant.waterRho) / Constant.waterViscosity;
+        return (0.075) / (Math.pow((Math.log10(reynoldsNumber) - 2), 2));
+    }
+
+    calcViscousResistance() {
+        this.viscousResistance.calcForceIntensity(this.getViscousResistanceCoefficient(), Constant.waterRho, this.state.linearVelocity.intensity, Constant.hullArea / 2);
+    }
+
+    getWaveMakingResistanceCoefficient() {
+        let froudeNumber = this.state.linearVelocity.intensity / Math.sqrt(Constant.accelerationOfGravity * Constant.boatLength);
+        if (froudeNumber <= 0.4)
+            return 2.5;
+        else if (froudeNumber > 0.4 && froudeNumber <= 0.7)
+            return 1.5;
+        else
+            return 0.5;
+    }
+
+    calcWaveMakingResistance() {
+        this.waveMakingResistance.calcForceIntensity(this.getWaveMakingResistanceCoefficient(), Constant.waterRho, this.state.linearVelocity.intensity, Constant.hullArea / 2);
+    }
+
+    calcAirResistance() {
+        this.airResistance.calcForceIntensity(Constant.airResistanceCoef, Constant.airRho, this.state.linearVelocity.intensity, Constant.hullArea / 2);
+    }
+
+    calcTotalHullResistance() {
+        this.calcViscousResistance();
+        this.calcWaveMakingResistance();
+        this.calcAirResistance();
+        // console.log(this.viscousResistance);
+        this.totalHullResistance.intensity = this.viscousResistance.intensity + this.waveMakingResistance.intensity + this.airResistance.intensity;
+        this.totalHullResistance.angle = this.state.linearVelocity.angle + 180;
+    }
+
 
     getAngleOfAttackInSail() {
         return Math.round(Maths.fix180(this.apparentWind.angle - (Controller.attributes.sailAngle + this.model.zAngle)));
@@ -109,6 +148,7 @@ export class Physics {
     }
 
     calcSegma() {
+        console.log(this.state.linearVelocity.intensity);
         this.apparentWind = Force.clacSegma([
             Force.initForceWith(Controller.attributes.windSpeed, Controller.attributes.windAngle),
             Force.initForceWith(this.state.linearVelocity.intensity, Maths.fix(this.state.linearVelocity.angle - 180)),
@@ -117,11 +157,13 @@ export class Physics {
         this.calcFLWater();
         this.calcFDWind();
         this.calcFLWind();
+        this.calcTotalHullResistance();
         this.segmaForces = Force.clacSegma([
             this.waterLiftForce,
             this.waterDragForce,
             this.windLiftForce,
             this.windDragForce,
+            this.totalHullResistance
         ]);
     }
 

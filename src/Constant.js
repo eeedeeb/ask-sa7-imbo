@@ -4,6 +4,10 @@ export class Constant {
 
     static airRho = 1.225;
 
+    static waterViscosity = 0.001;
+
+    static accelerationOfGravity = 9.81;
+
     static sailArea = 50;
 
     static keelArea = 5;
@@ -23,6 +27,8 @@ export class Constant {
     static rudderLiftCoef = 0.8;
 
     static rudderDragCoef = 0.04;
+
+    static airResistanceCoef = 1.2;
 
     static inertia = 12700;
 
