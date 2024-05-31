@@ -30,13 +30,13 @@ export class World{
 
     run(){
         const now = this.clock.getElapsedTime();
-        this.seeModel.run(this.boatModel);
-        this.drawBoat.run(this.boatModel);
+        this.seeModel.run(this.boatModel, this.state);
         this.phy.setState(this.state, this.boatModel);
         this.state = this.phy.getNewState();
         this.boatModel.x += this.state.linearVelocity.projectOnXAxis() / 2 * (now - this.last);
         this.boatModel.y += this.state.linearVelocity.projectOnYAxis() / 2 * (now - this.last);
         this.last = now;
+        this.drawBoat.run(this.boatModel);
     }
 
 

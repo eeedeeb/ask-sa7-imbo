@@ -65,7 +65,7 @@ const tick = () => {
     const position = world.boatModel.getPositionForCamera();
     camera.position.x = position.x;
     camera.position.y = position.y;
-    camera.position.z = position.z + 4;
+    camera.position.z = position.z + 2;
     camera.lookAt(world.boatModel.getPositionForView());
     geo.setFromPoints([
         new Vector3(0, 0, 6),

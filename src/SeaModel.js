@@ -1,7 +1,7 @@
 import * as Three from "three";
 import vertexShader from './shaders/vertex.glsl';
 import fragmentShader from './shaders/fragment.glsl'
-import {Clock} from "three";
+import {Box3, BoxGeometry, Clock, Mesh, MeshBasicMaterial, Vector4} from "three";
 import {Controller} from "./Controller";
 import {Constant} from "./Constant";
 import {Maths} from "./Math";
@@ -12,7 +12,7 @@ export class SeaModel {
         surface: '#9bd8ff',
         depth: '#186691',
     }
-    geometry = new Three.PlaneBufferGeometry(20, 20, 800, 800);
+    geometry = new Three.PlaneBufferGeometry(50, 75, 1000, 1000);
     material = new Three.ShaderMaterial({
         vertexShader: vertexShader,
         fragmentShader: fragmentShader,
@@ -26,27 +26,31 @@ export class SeaModel {
             uSurfaceColor: {value: new Three.Color(this.color.surface)},
             uDepthColor: {value: new Three.Color(this.color.depth)},
             uColorOffset: {value: 1},
-            uColorMultiply: {value: 0.4},
+            uColorMultiply: {value: 0.3},
+            points: {value: new Vector4(0, 0, 0, 0)}
         }
     })
     mesh = new Three.Mesh(this.geometry, this.material);
-
     init(scene) {
-        this.mesh.castShadow = true;
-        this.mesh.receiveShadow = true;
         scene.add(this.mesh);
     }
 
-    run(model) {
+    run(model, state) {
         const clk = this.clock.getElapsedTime();
         this.material.uniforms.uTime.value = clk;
         this.material.uniforms.uWaveElevation.value = Controller.attributes.waves;
         const x = model.x;
         const y = model.y;
         this.moveTo(x, y);
-        const length = Constant.boatLength / 4 - 0.5;
-        const width = Constant.boatWidth / 4 - 0.5;
-
+        this.mesh.rotation.z = Maths.toRad(model.zAngle);
+        const length = Constant.boatLength / 4 ;
+        const width = Constant.boatWidth / 4 ;
+        // const vec4 = new Vector4();
+        // vec4.x = x + length * Maths.cos(state.linearVelocity.angle);
+        // vec4.y = y + width * Maths.sin(state.linearVelocity.angle);
+        // vec4.z = vec4.x + state.linearVelocity.intensity * Maths.cos(state.linearVelocity.angle + 150);
+        // vec4.w = vec4.y + state.linearVelocity.intensity * Maths.sin(state.linearVelocity.angle + 150);
+        // this.material1.uniforms.points.value = vec4;
         const y1 = +y + width * Maths.sin(90);
         const x1 = +x + length * Maths.cos(90);
         const y2 = +y + width * Maths.sin(-90);
@@ -82,9 +86,9 @@ export class SeaModel {
         const fY = this.material.uniforms.uFrequencyY.value;
         const fX = this.material.uniforms.uFrequencyX.value;
         let z = (
-                Math.sin(y * fY / 2 - x * fX + clk)
-                + Math.sin(y * fY + x * fX * 2 + clk)
-                + Math.cos(x * fX / 2 + clk)
+                Math.sin((y * fY / 2 - x * fX + clk) * 0.7)
+                + Math.sin((y * fY + x * fX * 2 + clk)* 0.7)
+                + Math.cos((x * fX / 2 + clk)* 0.7)
             )
             * this.material.uniforms.uWaveElevation.value
             - 0.07;
@@ -95,7 +99,7 @@ export class SeaModel {
     }
 
     moveTo(x, y) {
-        this.mesh.position.x = x;
+        this.mesh.position.x = x ;
         this.mesh.position.y = y;
     }
 }

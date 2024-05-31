@@ -37,14 +37,14 @@ export class BoatModel {
     getPositionForCamera() {
         const position = new Vector3();
         position.z = this.z + 2;
-        position.x = this.x + 4 * Maths.cos(this.zAngle + 180)
-        position.y = this.y + 4 * Maths.sin(this.zAngle + 180)
+        position.x = this.x + 5 * Maths.cos(this.zAngle + 180)
+        position.y = this.y + 5 * Maths.sin(this.zAngle + 180)
         return position;
     }
 
     getPositionForView(){
         const position = new Vector3();
-        position.z = this.z + 2;
+        position.z = this.z;
         position.x = this.x + 4 * Maths.cos(this.zAngle)
         position.y = this.y + 4 * Maths.sin(this.zAngle)
         return position;
