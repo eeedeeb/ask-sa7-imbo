@@ -73,11 +73,11 @@ export class Physics {
     getWaveMakingResistanceCoefficient() {
         let froudeNumber = this.state.linearVelocity.intensity / Math.sqrt(Constant.accelerationOfGravity * Constant.boatLength);
         if (froudeNumber <= 0.4)
-            return 2.5;
+            return 0.0025;
         else if (froudeNumber > 0.4 && froudeNumber <= 0.7)
-            return 1.5;
+            return 0.0015;
         else
-            return 0.5;
+            return 0.0005;
     }
 
     calcWaveMakingResistance() {
@@ -92,8 +92,7 @@ export class Physics {
         this.calcViscousResistance();
         this.calcWaveMakingResistance();
         this.calcAirResistance();
-        // console.log(this.viscousResistance);
-        this.totalHullResistance.intensity = this.viscousResistance.intensity + this.waveMakingResistance.intensity + this.airResistance.intensity;
+        this.totalHullResistance.intensity = (this.viscousResistance.intensity + this.waveMakingResistance.intensity + this.airResistance.intensity) * 0.02 * this.state.linearVelocity.intensity;
         this.totalHullResistance.angle = this.state.linearVelocity.angle + 180;
     }
 
