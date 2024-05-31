@@ -1,7 +1,8 @@
 import * as Three from "three";
 import {Constant} from "./Constant";
-import {Vector3} from "three";
+import {BoxGeometry, Vector3} from "three";
 import {Maths} from "./Math";
+import {Controller} from "./Controller";
 
 export class DrawBoat{
 
@@ -9,29 +10,33 @@ export class DrawBoat{
     cube;
     cubeMat = new Three.MeshBasicMaterial();
     cubeMesh;
+    sail;
+    sailMat = new Three.MeshBasicMaterial();
+    sailMesh;
+    boat;
 
     init(scene){
         const scale = 0.5;
         this.cube =  new Three.BoxGeometry(Constant.boatLength * scale, Constant.boatWidth * scale, Constant.boatHeight * scale);
         this.cubeMesh = new Three.Mesh(this.cube, this.cubeMat);
-        scene.add(this.cubeMesh);
+        this.sail = new BoxGeometry(3, 0.05, 4);
+        this.sailMesh = new Three.Mesh(this.sail, this.sailMat);
+        this.sailMesh.position.z = 2;
+        this.boat = new Three.Group();
+        this.boat.add(this.cubeMesh);
+        this.boat.add(this.sailMesh);
+        scene.add(this.boat);
     }
 
     run(model){
-        this.cubeMesh.position.x = model.x;
-        this.cubeMesh.position.y = model.y;
-        this.cubeMesh.position.z = model.z;
-        this.cubeMesh.rotation.x = this.smooth(this.cubeMesh.rotation.x, Maths.toRad(model.xAngle));
-        this.cubeMesh.rotation.y = this.smooth(this.cubeMesh.rotation.y,  Maths.toRad(model.yAngle));
-        this.cubeMesh.rotation.z = this.smooth(this.cubeMesh.rotation.z, Maths.toRad(model.zAngle));
+        this.sailMesh.rotation.z = Maths.toRad(Controller.attributes.sailAngle);
+        this.boat.position.x = model.x;
+        this.boat.position.y = model.y;
+        this.boat.position.z = model.z;
+        this.boat.rotation.x = Maths.toRad(model.xAngle);
+        this.boat.rotation.y = Maths.toRad(model.yAngle);
+        this.boat.rotation.z = Maths.toRad(model.zAngle);
     }
 
-    smooth(current, needed){
-        // if(needed > current)
-        //     return Math.min(current + 0.1, needed);
-        //
-        // return Math.max(current - 0.1, needed);
-        return needed;
-    }
 
 }

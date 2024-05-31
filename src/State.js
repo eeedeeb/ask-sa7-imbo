@@ -6,11 +6,10 @@ export class State {
     linearVelocity;
     angularVelocity;
 
-    constructor(linearVelocity, angularVelocity) {
-        this.linearVelocity = linearVelocity;
-        this.angularVelocity = angularVelocity;
+    constructor(lin, ang) {
+        this.linearVelocity = lin;
+        this.angularVelocity = ang;
     }
-
     static initState() {
         return new State(Force.initForce(), Torque.initTorque());
     }

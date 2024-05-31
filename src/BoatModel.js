@@ -1,5 +1,5 @@
-import * as Three from "three";
 import {Maths} from "./Math";
+import {Vector3} from "three";
 
 export class BoatModel {
     x;
@@ -26,8 +26,20 @@ export class BoatModel {
     }
 
     moveAhead() {
-        this.x += 0.2 * Maths.cos(this.zAngle);
-        this.y += 0.2 * Maths.sin(this.zAngle);
+        this.x += 0.1 * Maths.cos(this.zAngle);
+        this.y += 0.1 * Maths.sin(this.zAngle);
+    }
+
+    getPosition(){
+        return new Vector3(this.x, this.y, this.z);
+    }
+
+    getPositionForCamera() {
+        const position = new Vector3();
+        position.z = this.z + 7;
+        position.x = this.x + 4 * Maths.cos(this.zAngle + 180)
+        position.y = this.y + 4 * Maths.sin(this.zAngle + 180)
+        return position;
     }
 
 }

@@ -16,8 +16,8 @@ export class Controller {
         wind.add(this.attributes, 'windSpeed').min(0).max(15).step(0.1).name('Wind Speed');
         wind.add(this.attributes, 'windAngle').min(0).max(360).step(1).name('Wind Angle');
         const boat = gui.addFolder('boat');
-        boat.add(this.attributes, 'sailAngle').min(-90).max(90).step(0.2).name('Sail Angle');
-        boat.add(this.attributes, 'rudderAngle').min(-30).max(30).step(0.2).name('Rudder Angle');
+        boat.add(this.attributes, 'sailAngle').min(-90).max(90).step(1).name('Sail Angle');
+        boat.add(this.attributes, 'rudderAngle').min(-30).max(30).step(1).name('Rudder Angle');
         const wave = gui.addFolder('wave');
         wave.add(this.attributes, 'waves').min(0).max(1).step(0.01).name('Waves Elevation');
         gui.open();

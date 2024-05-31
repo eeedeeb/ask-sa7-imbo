@@ -1,8 +1,10 @@
 import './style.css';
 import * as THREE from 'three';
-import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import {World} from "./World";
-import {Vector3} from "three";
+import {BufferGeometry, Line, LineBasicMaterial, Vector3} from "three";
+import {Controller} from "./Controller";
+import {Maths} from "./Math";
+import {MapControls, OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 
 const size = {
     width: window.innerWidth,
@@ -13,20 +15,17 @@ const scene = new THREE.Scene();
 
 const axesHelper = new THREE.AxesHelper(5);
 scene.add(axesHelper)
-const light = new THREE.PointLight( 0xffffff, 1, 100);
-light.position.set( 5, 5, 5 );
-light.castShadow = true;
-scene.add( light );
 //camera
 const camera = new THREE.PerspectiveCamera(75, size.width / size.height);
-
-
+camera.position.y = 4;
 //render
 const canvas = document.querySelector('.webgl');
 const renderer = new THREE.WebGLRenderer({
     canvas
 });
 renderer.setSize(size.width, size.height);
+// const controller = new MapControls(camera, canvas);
+// controller.update();
 
 const resize = function (){
     size.width = window.innerWidth;
@@ -35,13 +34,10 @@ const resize = function (){
     camera.updateProjectionMatrix();
     renderer.setSize(size.width, size.height);
 }
-
-
-const controls = new OrbitControls( camera, canvas);
-controls.update();
+camera.up.z =1 ;
+camera.up.x =0 ;
+camera.up.y =0 ;
 scene.add(camera);
-camera.position.y = -4;
-camera.lookAt(new Vector3(0, 0, 0));
 const world = new World();
 world.init(scene);
 document.addEventListener('keypress', function (evt){
@@ -55,13 +51,30 @@ document.addEventListener('keypress', function (evt){
         world.boatModel.zAngle -= 2;
     }
 });
+
+const mat = new LineBasicMaterial({color: 0xffff00})
+let geo = new BufferGeometry().setFromPoints([
+    new Vector3(0, 0, 1),
+    new Vector3(0, 0, 1),
+])
+const line = new Line(geo, mat);
+scene.add(line);
 //Animation
 const tick = () => {
     //render
+    const position = world.boatModel.getPositionForCamera();
+    camera.position.x = position.x;
+    camera.position.y = position.y;
+    camera.position.z = position.z + 4;
+    camera.lookAt(world.boatModel.getPosition());
+    geo.setFromPoints([
+        new Vector3(world.boatModel.x, world.boatModel.y, 6),
+        new Vector3(world.boatModel.x- 3 * Maths.cos(Controller.attributes.windAngle), world.boatModel.y- 3 * Maths.sin(Controller.attributes.windAngle), 6),
+    ])
     resize();
     renderer.render(scene, camera);
-    controls.update();
-    world.run();
+    // controller.update();
+    world.run(scene);
     window.requestAnimationFrame(tick);
 }
 
