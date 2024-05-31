@@ -7,7 +7,7 @@ export class Controller {
         windAngle: 0,
         sailAngle: 0,
         rudderAngle: 0,
-        waves: 0.2,
+        waves: 0,
     }
 
     static init(){

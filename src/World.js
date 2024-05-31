@@ -34,8 +34,8 @@ export class World{
         this.drawBoat.run(this.boatModel);
         this.phy.setState(this.state, this.boatModel);
         this.state = this.phy.getNewState();
-        this.boatModel.x += this.state.linearVelocity.projectOnXAxis(0) / 2 * (now - this.last);
-        this.boatModel.y += this.state.linearVelocity.projectOnYAxis(0) / 2 * (now - this.last);
+        this.boatModel.x += this.state.linearVelocity.projectOnXAxis() / 2 * (now - this.last);
+        this.boatModel.y += this.state.linearVelocity.projectOnYAxis() / 2 * (now - this.last);
         this.last = now;
     }
 

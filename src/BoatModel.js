@@ -13,7 +13,7 @@ export class BoatModel {
     static initModel() {
         const boatModel = new BoatModel();
 
-        boatModel.x = 1;
+        boatModel.x = 0;
         boatModel.y = 0;
         boatModel.z = 0;
         boatModel.xAngle = 45;
@@ -36,9 +36,17 @@ export class BoatModel {
 
     getPositionForCamera() {
         const position = new Vector3();
-        position.z = this.z + 7;
+        position.z = this.z + 2;
         position.x = this.x + 4 * Maths.cos(this.zAngle + 180)
         position.y = this.y + 4 * Maths.sin(this.zAngle + 180)
+        return position;
+    }
+
+    getPositionForView(){
+        const position = new Vector3();
+        position.z = this.z + 2;
+        position.x = this.x + 4 * Maths.cos(this.zAngle)
+        position.y = this.y + 4 * Maths.sin(this.zAngle)
         return position;
     }
 

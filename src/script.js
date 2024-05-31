@@ -66,11 +66,13 @@ const tick = () => {
     camera.position.x = position.x;
     camera.position.y = position.y;
     camera.position.z = position.z + 4;
-    camera.lookAt(world.boatModel.getPosition());
+    camera.lookAt(world.boatModel.getPositionForView());
     geo.setFromPoints([
-        new Vector3(world.boatModel.x, world.boatModel.y, 6),
-        new Vector3(world.boatModel.x- 3 * Maths.cos(Controller.attributes.windAngle), world.boatModel.y- 3 * Maths.sin(Controller.attributes.windAngle), 6),
+        new Vector3(0, 0, 6),
+        new Vector3(- 3 * Maths.cos(Controller.attributes.windAngle), - 3 * Maths.sin(Controller.attributes.windAngle), 4),
     ])
+    line.position.x = world.boatModel.x;
+    line.position.y = world.boatModel.y;
     resize();
     renderer.render(scene, camera);
     // controller.update();

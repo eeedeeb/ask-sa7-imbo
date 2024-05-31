@@ -12,16 +12,16 @@ export class Force {
     ]);
     line = new Line(this.geo, this.mat);
     calcForceIntensity(coefficient, rho, velocity, area){
-        this.intensity = coefficient * rho * velocity * velocity * area / 2;
+        this.intensity = coefficient * rho * velocity * velocity * area / 2 ;
         return this;
     }
 
-    projectOnXAxis(angleOfXAxisAccordingToWorld){
-        return Maths.cos(this.angle - angleOfXAxisAccordingToWorld) * this.intensity;
+    projectOnXAxis(){
+        return Maths.cos(this.angle) * this.intensity;
     }
 
-    projectOnYAxis(angleOfXAxisAccordingToWorld){
-        return Maths.sin(this.angle - angleOfXAxisAccordingToWorld) * this.intensity;
+    projectOnYAxis(){
+        return Maths.sin(this.angle) * this.intensity;
     }
 
     static initForce() {
@@ -53,8 +53,8 @@ export class Force {
         let totalX = 0, totalY = 0;
 
         for(let i = 0; i < forces.length; i++){
-            totalX += forces[i].projectOnXAxis(0);
-            totalY += forces[i].projectOnYAxis(0);
+            totalX += forces[i].projectOnXAxis();
+            totalY += forces[i].projectOnYAxis();
         }
 
         return this.getFromCoordinate(totalX, totalY);
@@ -67,9 +67,11 @@ export class Force {
 
     update(x, y){
         this.geo.setFromPoints([
-            new Vector3(x, y, 5),
-            new Vector3( x + this.intensity / 700 * Maths.cos(this.angle), y +  this.intensity/ 700 * Maths.sin(this.angle), 5),
+            new Vector3(0, 0, 5),
+            new Vector3( this.intensity / 70 * Maths.cos(this.angle), this.intensity/ 70 * Maths.sin(this.angle), 5),
         ]);
+        this.line.position.x = x;
+        this.line.position.y = y;
     }
 
 }
