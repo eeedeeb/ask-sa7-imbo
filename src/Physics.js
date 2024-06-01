@@ -52,15 +52,26 @@ export class Physics {
     }
 
 
+    /**
+     * Calculate Cv and return it
+     * @returns {number}
+     */
     getViscousResistanceCoefficient() {
         let reynoldsNumber = (Constant.boatLength * this.state.linearVelocity.intensity * Constant.waterRho) / Constant.waterViscosity;
         return (0.075) / (Math.pow((Math.log10(reynoldsNumber) - 2), 2));
     }
 
+    /**
+     * Calculate Rv: Viscous Resistance
+     */
     calcViscousResistance() {
         this.viscousResistance.calcForceIntensity(this.getViscousResistanceCoefficient(), Constant.waterRho, this.state.linearVelocity.intensity, Constant.hullArea / 2);
     }
 
+    /**
+     * Calculate Cw and return it
+     * @returns {number}
+     */
     getWaveMakingResistanceCoefficient() {
         let froudeNumber = this.state.linearVelocity.intensity / Math.sqrt(Constant.accelerationOfGravity * Constant.boatLength);
         if (froudeNumber <= 0.4)
@@ -71,14 +82,23 @@ export class Physics {
             return 0.0005;
     }
 
+    /**
+     * Calculate Rw: Wave Making Resistance
+     */
     calcWaveMakingResistance() {
         this.waveMakingResistance.calcForceIntensity(this.getWaveMakingResistanceCoefficient(), Constant.waterRho, this.state.linearVelocity.intensity, Constant.hullArea / 2);
     }
 
+    /**
+     * Calculate Ra: Air Resistance
+     */
     calcAirResistance() {
         this.airResistance.calcForceIntensity(Constant.airResistanceCoef, Constant.airRho, this.state.linearVelocity.intensity, Constant.hullArea / 2);
     }
 
+    /**
+     * Calculate Rt: Total Hull Resistance
+     */
     calcTotalHullResistance() {
         this.calcViscousResistance();
         this.calcWaveMakingResistance();
