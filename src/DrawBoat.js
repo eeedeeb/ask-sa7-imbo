@@ -5,13 +5,12 @@ import {Maths} from "./Math";
 import {Controller} from "./Controller";
 
 export class DrawBoat{
-
-
+    
     cube;
-    cubeMat = new Three.MeshBasicMaterial();
+    cubeMat = new Three.MeshStandardMaterial();
     cubeMesh;
     sail;
-    sailMat = new Three.MeshBasicMaterial();
+    sailMat = new Three.MeshStandardMaterial();
     sailMesh;
     boat;
 
@@ -25,9 +24,12 @@ export class DrawBoat{
         this.boat = new Three.Group();
         this.boat.add(this.cubeMesh);
         this.boat.add(this.sailMesh);
+        this.sailMesh.castShadow = true;
+        this.cubeMesh.castShadow = true;
+        this.sailMesh.receiveShadow = true;
+        this.cubeMesh.receiveShadow = true;
         scene.add(this.boat);
     }
-
     run(model){
         this.sailMesh.rotation.z = Maths.toRad(Controller.attributes.sailAngle);
         this.boat.position.x = model.x;
@@ -37,6 +39,4 @@ export class DrawBoat{
         this.boat.rotation.y = Maths.toRad(model.yAngle);
         this.boat.rotation.z = Maths.toRad(model.zAngle);
     }
-
-
 }

@@ -17,3 +17,13 @@ body
     left: 0;
     outline: none;
 }
+
+#velocity{
+    position: fixed;
+    top: 150px;
+    left: 10px;
+    color: white;
+}
+svg {
+    transform-origin: center center;
+}

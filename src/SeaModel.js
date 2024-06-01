@@ -1,7 +1,7 @@
 import * as Three from "three";
 import vertexShader from './shaders/vertex.glsl';
 import fragmentShader from './shaders/fragment.glsl'
-import {Box3, BoxGeometry, Clock, Mesh, MeshBasicMaterial, Vector4} from "three";
+import {Clock, Vector4} from "three";
 import {Controller} from "./Controller";
 import {Constant} from "./Constant";
 import {Maths} from "./Math";
@@ -12,7 +12,7 @@ export class SeaModel {
         surface: '#9bd8ff',
         depth: '#186691',
     }
-    geometry = new Three.PlaneBufferGeometry(50, 75, 1000, 1000);
+    geometry = new Three.PlaneBufferGeometry(40, 40, 1000, 1000);
     material = new Three.ShaderMaterial({
         vertexShader: vertexShader,
         fragmentShader: fragmentShader,
@@ -26,7 +26,7 @@ export class SeaModel {
             uSurfaceColor: {value: new Three.Color(this.color.surface)},
             uDepthColor: {value: new Three.Color(this.color.depth)},
             uColorOffset: {value: 1},
-            uColorMultiply: {value: 0.3},
+            uColorMultiply: {value: 0.2},
             points: {value: new Vector4(0, 0, 0, 0)}
         }
     })
@@ -86,7 +86,7 @@ export class SeaModel {
         const fY = this.material.uniforms.uFrequencyY.value;
         const fX = this.material.uniforms.uFrequencyX.value;
         let z = (
-                Math.sin((y * fY / 2 - x * fX + clk) * 0.7)
+                Math.sin((y * fY - x * fX + clk) * 0.7)
                 + Math.sin((y * fY + x * fX * 2 + clk)* 0.7)
                 + Math.cos((x * fX / 2 + clk)* 0.7)
             )

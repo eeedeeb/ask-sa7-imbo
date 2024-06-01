@@ -94,7 +94,7 @@ void main(){
 
     float x = 0.7;
     float elevation = (
-                       sin((modelVec.y * uFrequencyY/2.0  - modelVec.x * uFrequencyX + uTime) * x)
+                       sin((modelVec.y * uFrequencyY  - modelVec.x * uFrequencyX + uTime) * x)
                      + sin((modelVec.y * uFrequencyY + modelVec.x * uFrequencyX*2.0 + uTime) * x)
                      + cos((modelVec.x * uFrequencyX/2.0 + uTime) * x)
                      )

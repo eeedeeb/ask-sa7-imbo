@@ -3,7 +3,6 @@ import {Torque} from "./Torque";
 import {Constant} from "./Constant";
 import {Controller} from "./Controller";
 import {Maths} from "./Math";
-import {Color} from "three";
 import {State} from "./State";
 
 export class Physics {
@@ -31,15 +30,7 @@ export class Physics {
     setState(state, model) {
         this.state = state;
         this.model = model;
-    }
-
-    init(scene) {
-        this.waterLiftForce.draw(scene, new Color(0xffbb55));
-        this.waterDragForce.draw(scene, new Color(0x0000ff));
-        this.windLiftForce.draw(scene, new Color(0xff0000));
-        this.windDragForce.draw(scene, new Color(0x00ff00));
-        this.segmaForces.draw(scene, new Color(0xffffff));
-        this.apparentWind.draw(scene, new Color(0x00ffff));
+        return this;
     }
 
     calcRudderLiftForce() {
@@ -147,7 +138,6 @@ export class Physics {
     }
 
     calcSegma() {
-        console.log(this.state.linearVelocity.intensity);
         this.apparentWind = Force.clacSegma([
             Force.initForceWith(Controller.attributes.windSpeed, Controller.attributes.windAngle),
             Force.initForceWith(this.state.linearVelocity.intensity, Maths.fix(this.state.linearVelocity.angle - 180)),
