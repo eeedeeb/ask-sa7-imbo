@@ -5,12 +5,6 @@ import {Constant} from "./Constant";
 export class Force {
     intensity;
     angle;
-    mat = new LineBasicMaterial({color: 0xff00ff});
-    geo = new BufferGeometry().setFromPoints([
-        new Vector3(0, 0, 1),
-        new Vector3(0, 0, 1),
-    ]);
-    line = new Line(this.geo, this.mat);
     calcForceIntensity(coefficient, rho, velocity, area){
         this.intensity = coefficient * rho * velocity * velocity * area / 2 ;
         return this;
@@ -49,7 +43,7 @@ export class Force {
         return this.initForceWith(intensity, angle);
     }
 
-    static clacSegma(forces){
+    static calcSegma(forces){
         let totalX = 0, totalY = 0;
 
         for(let i = 0; i < forces.length; i++){
@@ -60,18 +54,5 @@ export class Force {
         return this.getFromCoordinate(totalX, totalY);
     }
 
-    draw(scene, color){
-        this.mat.color = color;
-        scene.add(this.line);
-    }
-
-    update(x, y){
-        this.geo.setFromPoints([
-            new Vector3(0, 0, 5),
-            new Vector3( this.intensity / 70 * Maths.cos(this.angle), this.intensity/ 70 * Maths.sin(this.angle), 5),
-        ]);
-        this.line.position.x = x;
-        this.line.position.y = y;
-    }
 
 }

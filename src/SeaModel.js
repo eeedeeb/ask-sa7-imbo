@@ -6,7 +6,9 @@ import {Controller} from "./Controller";
 import {Constant} from "./Constant";
 import {Maths} from "./Math";
 
+
 export class SeaModel {
+    lastAngle = 0;
     clock = new Clock();
     color = {
         surface: '#9bd8ff',
@@ -27,12 +29,22 @@ export class SeaModel {
             uDepthColor: {value: new Three.Color(this.color.depth)},
             uColorOffset: {value: 1},
             uColorMultiply: {value: 0.2},
-            points: {value: new Vector4(0, 0, 0, 0)}
+            points1: {value: new Vector4(0, 0, 0, 0)},
+            points2: {value: new Vector4(0, 0, 0, 0)}
         }
     })
     mesh = new Three.Mesh(this.geometry, this.material);
     init(scene) {
         scene.add(this.mesh);
+    }
+
+    getSmoothAngle(angle) {
+        if(angle > this.lastAngle){
+            this.lastAngle ++;
+        }else if(angle < this.lastAngle){
+            this.lastAngle --;
+        }
+        return this.lastAngle;
     }
 
     run(model, state) {
@@ -45,12 +57,21 @@ export class SeaModel {
         this.mesh.rotation.z = Maths.toRad(model.zAngle);
         const length = Constant.boatLength / 4 ;
         const width = Constant.boatWidth / 4 ;
-        // const vec4 = new Vector4();
-        // vec4.x = x + length * Maths.cos(state.linearVelocity.angle);
-        // vec4.y = y + width * Maths.sin(state.linearVelocity.angle);
-        // vec4.z = vec4.x + state.linearVelocity.intensity * Maths.cos(state.linearVelocity.angle + 150);
-        // vec4.w = vec4.y + state.linearVelocity.intensity * Maths.sin(state.linearVelocity.angle + 150);
-        // this.material1.uniforms.points.value = vec4;
+        const vec41 = new Vector4();
+        const angle = state.linearVelocity.angle;
+        vec41.x = x + (length) * Maths.cos(angle + 45);
+        vec41.y = y + (width) * Maths.sin(angle + 45);
+        vec41.z = vec41.x + 2 * state.linearVelocity.intensity * Maths.cos(angle + 150);
+        vec41.w = vec41.y + 2 * state.linearVelocity.intensity * Maths.sin(angle + 150);
+        this.material.uniforms.points1.value = vec41;
+
+        const vec42 = new Vector4();
+        vec42.x = x + (length) * Maths.cos(angle - 45);
+        vec42.y = y + (width) * Maths.sin(angle - 45);
+        vec42.z = vec42.x + 2 * state.linearVelocity.intensity * Maths.cos(angle - 150);
+        vec42.w = vec42.y + 2 * state.linearVelocity.intensity * Maths.sin(angle - 150);
+        this.material.uniforms.points2.value = vec42;
+
         const y1 = +y + width * Maths.sin(90);
         const x1 = +x + length * Maths.cos(90);
         const y2 = +y + width * Maths.sin(-90);

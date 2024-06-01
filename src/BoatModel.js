@@ -16,18 +16,13 @@ export class BoatModel {
         boatModel.x = 0;
         boatModel.y = 0;
         boatModel.z = 0;
-        boatModel.xAngle = 45;
+        boatModel.xAngle = 0;
         boatModel.yAngle = 0;
         boatModel.zAngle = 0;
         boatModel.sailAngel = 0;
         boatModel.rudderAngle = 0;
 
         return boatModel;
-    }
-
-    moveAhead() {
-        this.x += 0.1 * Maths.cos(this.zAngle);
-        this.y += 0.1 * Maths.sin(this.zAngle);
     }
 
     getPosition(){

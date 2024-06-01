@@ -5,5 +5,5 @@ uniform float uColorMultiply;
 varying float vElevation;
 void main(){
     vec3 color = mix(uSurfaceColor, uDepthColor, -vElevation * uColorMultiply + uColorOffset);
-    gl_FragColor = vec4(color , 0.9);
+    gl_FragColor = vec4(color , 0.7);
 }

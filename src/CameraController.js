@@ -5,7 +5,7 @@ export class CameraController{
 
     camera;
     currentZ = 0;
-    currentX = 30;
+    currentX = 0;
     constructor(camera) {
         this.camera = camera;
     }

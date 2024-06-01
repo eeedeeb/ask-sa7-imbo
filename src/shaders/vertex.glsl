@@ -2,7 +2,8 @@ uniform float uWaveElevation;
 uniform float uFrequencyY;
 uniform float uFrequencyX;
 uniform float uTime;
-uniform vec4 points;
+uniform vec4 points1;
+uniform vec4 points2;
 
 varying float vElevation;
 //	Classic Perlin 3D Noise
@@ -84,9 +85,9 @@ float dis(float x1, float y1, float x2, float y2){
     return sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
 }
 
-bool almost(float x1, float x2){
-    float dis = x1 - x2;
-    return (dis > -0.05 && dis < 0.05);
+bool almost(float x){
+
+    return (x > -0.1 && x < 0.15);
 }
 
 void main(){
@@ -102,13 +103,17 @@ void main(){
     if(elevation < 0.0) elevation /= 2.0;
     for(float i = 1.0; i <= 4.0; i++)
         elevation -= abs(cnoise(vec3(modelVec.xy * 3.0 * i, uTime)) * 0.15 / i);
+
+
+    float dis1 = abs(dis(points1.x, points1.y, points1.z, points1.w) - (dis(modelVec.x, modelVec.y, points1.z, points1.w) + dis(points1.x, points1.y, modelVec.x, modelVec.y)));
+    if(almost(dis1)){
+        elevation += 0.2 - dis1;
+    }
+    float dis2 = abs(dis(points2.x, points2.y, points2.z, points2.w) - (dis(modelVec.x, modelVec.y, points2.z, points2.w) + dis(points2.x, points2.y, modelVec.x, modelVec.y)));
+    if(almost(dis2)){
+        elevation += 0.2 - dis2;
+    }
     modelVec.z += elevation;
-    if(almost(
-        dis(points.x, points.y, points.z, points.w),
-        dis(modelVec.x, modelVec.y, points.z, points.w) + dis(points.x, points.y, modelVec.x, modelVec.y)
-         )){
-            modelVec.z += 0.4;
-         }
     gl_Position = projectionMatrix * viewMatrix * modelVec;
 
     vElevation = elevation;

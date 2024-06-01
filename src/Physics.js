@@ -138,7 +138,7 @@ export class Physics {
     }
 
     calcSegma() {
-        this.apparentWind = Force.clacSegma([
+        this.apparentWind = Force.calcSegma([
             Force.initForceWith(Controller.attributes.windSpeed, Controller.attributes.windAngle),
             Force.initForceWith(this.state.linearVelocity.intensity, Maths.fix(this.state.linearVelocity.angle - 180)),
         ]);
@@ -147,7 +147,7 @@ export class Physics {
         this.calcFDWind();
         this.calcFLWind();
         this.calcTotalHullResistance();
-        this.segmaForces = Force.clacSegma([
+        this.segmaForces = Force.calcSegma([
             this.waterLiftForce,
             this.waterDragForce,
             this.windLiftForce,
@@ -159,7 +159,7 @@ export class Physics {
     getNewState() {
         this.calcSegma();
         const acc = Force.initForceWith(this.segmaForces.intensity / Constant.boatMass, this.segmaForces.angle)
-        this.state.linearVelocity = Force.clacSegma([
+        this.state.linearVelocity = Force.calcSegma([
             this.state.linearVelocity,
             acc,
         ])
