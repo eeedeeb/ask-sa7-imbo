@@ -103,7 +103,7 @@ export class Physics {
         this.calcViscousResistance();
         this.calcWaveMakingResistance();
         this.calcAirResistance();
-        this.totalHullResistance.intensity = (this.viscousResistance.intensity + this.waveMakingResistance.intensity + this.airResistance.intensity) * 0.02 * this.state.linearVelocity.intensity;
+        this.totalHullResistance.intensity = (this.viscousResistance.intensity + this.waveMakingResistance.intensity + this.airResistance.intensity) * 0.04 * this.state.linearVelocity.intensity;
         this.totalHullResistance.angle = this.state.linearVelocity.angle + 180;
     }
 

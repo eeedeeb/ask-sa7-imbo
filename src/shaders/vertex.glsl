@@ -101,8 +101,8 @@ void main(){
                      )
                     * uWaveElevation;
     if(elevation < 0.0) elevation /= 2.0;
-    for(float i = 1.0; i <= 4.0; i++)
-        elevation -= abs(cnoise(vec3(modelVec.xy * 3.0 * i, uTime)) * 0.15 / i);
+    for(float i = 1.0; i <= 2.0; i++)
+        elevation -= abs(cnoise(vec3(modelVec.xy * 3.0 * i, uTime)) * 0.10 / i);
 
 
     float dis1 = abs(dis(points1.x, points1.y, points1.z, points1.w) - (dis(modelVec.x, modelVec.y, points1.z, points1.w) + dis(points1.x, points1.y, modelVec.x, modelVec.y)));
