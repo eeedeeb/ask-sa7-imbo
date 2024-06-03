@@ -23,7 +23,7 @@ export class Physics {
     airResistance = Force.initForce();
 
     rudderTorque = Torque.initTorque();
-    hullTorque;
+    hullTorque = Torque.initTorque();
     keelTorque;
     sailTorque;
 
@@ -34,19 +34,24 @@ export class Physics {
     }
 
     calcRudderLiftForce() {
-        this.rudderLiftForce.calcForceIntensity(Constant.rudderLiftCoef, Constant.waterRho, this.state.linearVelocity, Constant.rudderArea);
+        this.rudderLiftForce.calcForceIntensity(Constant.rudderLiftCoef, Constant.waterRho, this.state.linearVelocity.intensity, Constant.rudderArea);
+        //this.rudderLiftForce.angle = 0;
+        //console.log(this.rudderLiftForce.intensity);
     }
 
     calcRudderDragForce() {
-        this.rudderDragForce.calcForceIntensity(Constant.rudderDragCoef, Constant.waterRho, this.state.linearVelocity, Constant.rudderArea);
+        this.rudderDragForce.calcForceIntensity(Constant.rudderDragCoef, Constant.waterRho, this.state.linearVelocity.intensity, Constant.rudderArea);
     }
 
     calcRudderTotalForce() {
+        this.calcRudderDragForce();
+        this.calcRudderLiftForce();
         const driftAngle = Controller.attributes.rudderAngle - this.state.linearVelocity.angle;
         this.rudderTotalForce.intensity = this.rudderLiftForce.intensity * Maths.cos(driftAngle) - this.rudderDragForce.intensity * Maths.sin(driftAngle);
     }
 
     calcRudderTorque() {
+        this.calcRudderTotalForce();
         const clockwise = (Controller.attributes.rudderAngle > 0);
         this.rudderTorque.calcTorqueIntensity(this.rudderTotalForce.intensity, Constant.boatLength / 2, clockwise);
     }
@@ -105,6 +110,14 @@ export class Physics {
         this.calcAirResistance();
         this.totalHullResistance.intensity = (this.viscousResistance.intensity + this.waveMakingResistance.intensity + this.airResistance.intensity) * 0.02 * this.state.linearVelocity.intensity;
         this.totalHullResistance.angle = this.state.linearVelocity.angle + 180;
+    }
+
+    calcHullResistanceTorque() {
+        this.hullTorque.calcTorqueIntensity(this.totalHullResistance.intensity, Constant.boatWidth / 2, !this.rudderTorque.clockwise); 
+    }
+
+    clacAngleOfRotation() {
+        return (this.rudderTorque.intensity - this.hullTorque.intensity) / Constant.inertia;
     }
 
 
@@ -167,6 +180,10 @@ export class Physics {
         this.calcFDWind();
         this.calcFLWind();
         this.calcTotalHullResistance();
+        //this.calcRudderLiftForce();
+        this.calcRudderTorque();
+        this.calcHullResistanceTorque();
+        //console.log(this.windLiftForce.intensity);
         this.segmaForces = Force.calcSegma([
             this.waterLiftForce,
             this.waterDragForce,
@@ -178,11 +195,22 @@ export class Physics {
 
     getNewState() {
         this.calcSegma();
+        const x = this.clacAngleOfRotation()
         const acc = Force.initForceWith(this.segmaForces.intensity / Constant.boatMass, this.segmaForces.angle)
+        const angacc = Force.initForceWith(x,0)
         this.state.linearVelocity = Force.calcSegma([
             this.state.linearVelocity,
             acc,
-        ])
+        ]);
+
+        
+        this.state.angularVelocity = Force.calcSegma([
+            this.state.angularVelocity,
+            angacc,
+        ]);
+        //console.log(this.windLiftForce.intensity);
+        //this.state.angularVelocity.intensity = this.clacAngleOfRotation();
+        console.log(this.state.angularVelocity.intensity);
         return this.state;
     }
 
