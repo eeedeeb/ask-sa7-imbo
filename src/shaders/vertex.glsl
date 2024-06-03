@@ -104,14 +104,15 @@ void main(){
     for(float i = 1.0; i <= 4.0; i++)
         elevation -= abs(cnoise(vec3(modelVec.xy * 3.0 * i, uTime)) * 0.15 / i);
 
-
-    float dis1 = abs(dis(points1.x, points1.y, points1.z, points1.w) - (dis(modelVec.x, modelVec.y, points1.z, points1.w) + dis(points1.x, points1.y, modelVec.x, modelVec.y)));
+    float dis11 = dis(points1.x, points1.y, modelVec.x, modelVec.y);
+    float dis1 = abs(dis(points1.x, points1.y, points1.z, points1.w) - (dis(modelVec.x, modelVec.y, points1.z, points1.w) + dis11));
     if(almost(dis1)){
-        elevation += 0.2 - dis1;
+        elevation += 0.4 - 2.0*dis1;
     }
-    float dis2 = abs(dis(points2.x, points2.y, points2.z, points2.w) - (dis(modelVec.x, modelVec.y, points2.z, points2.w) + dis(points2.x, points2.y, modelVec.x, modelVec.y)));
+    float dis22 = dis(points2.x, points2.y, modelVec.x, modelVec.y);
+    float dis2 = abs(dis(points2.x, points2.y, points2.z, points2.w) - (dis(modelVec.x, modelVec.y, points2.z, points2.w) + dis22));
     if(almost(dis2)){
-        elevation += 0.2 - dis2;
+        elevation += 0.4 - 2.0*dis2 ;
     }
     modelVec.z += elevation;
     gl_Position = projectionMatrix * viewMatrix * modelVec;

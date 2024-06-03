@@ -31,4 +31,10 @@ export class Maths{
         if(angle >= 180) angle -= 180;
         return angle;
     }
+
+    static differance(angle1, angle2){
+        angle1 = this.fix(angle1);
+        angle2 = this.fix(angle2);
+        return Math.min(this.fix(angle2 - angle1), this.fix(angle1 - angle2));
+    }
 }

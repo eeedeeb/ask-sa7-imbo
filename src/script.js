@@ -5,6 +5,9 @@ import {AmbientLight, BufferGeometry, DirectionalLight, Line, LineBasicMaterial,
 import {Controller} from "./Controller";
 import {Maths} from "./Math";
 import {CameraController} from "./CameraController";
+import {RGBELoader} from "three/examples/jsm/loaders/RGBELoader";
+
+const c = new RGBELoader()
 
 const size = {
     width: window.innerWidth,
@@ -61,8 +64,6 @@ light.position.y = 500;
 light.position.z = 500;
 light.castShadow = true;
 // scene.add(light);
-
-
 let lastX = 0;
 let lastY = 0;
 

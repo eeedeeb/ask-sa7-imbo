@@ -27,10 +27,11 @@ export class World{
     }
 
     run(){
+        Controller.update();
+        this.seeModel.run(this.boatModel, this.state);
         this.state =  this.phy.setState(this.state, this.boatModel).getNewState();
         this.boatModel = this.projection.setState(this.state, this.boatModel).getModel();
         this.drawBoat.run(this.boatModel);
-        this.seeModel.run(this.boatModel, this.state);
     }
 
 

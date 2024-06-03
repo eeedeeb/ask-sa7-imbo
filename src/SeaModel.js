@@ -8,7 +8,8 @@ import {Maths} from "./Math";
 
 
 export class SeaModel {
-    lastAngle = 0;
+    lastX = 0;
+    lastY = 0;
     clock = new Clock();
     color = {
         surface: '#9bd8ff',
@@ -38,13 +39,17 @@ export class SeaModel {
         scene.add(this.mesh);
     }
 
-    getSmoothAngle(angle) {
-        if(angle > this.lastAngle){
-            this.lastAngle ++;
-        }else if(angle < this.lastAngle){
-            this.lastAngle --;
+    getSmoothAngle(model, state) {
+        const angle1 = Maths.fix(model.zAngle);
+        const angle2 = Maths.fix(state.linearVelocity.angle);
+        const diff = Maths.differance(angle1, angle2);
+       if(diff <= 30){
+           return angle1;
+       }
+        if(diff <= 210 && diff >= 120){
+            return angle1 + 180;
         }
-        return this.lastAngle;
+        return 500;
     }
 
     run(model, state) {
@@ -58,19 +63,7 @@ export class SeaModel {
         const length = Constant.boatLength / 4 ;
         const width = Constant.boatWidth / 4 ;
         const vec41 = new Vector4();
-        const angle = state.linearVelocity.angle;
-        vec41.x = x + (length) * Maths.cos(angle + 45);
-        vec41.y = y + (width) * Maths.sin(angle + 45);
-        vec41.z = vec41.x + 2 * state.linearVelocity.intensity * Maths.cos(angle + 150);
-        vec41.w = vec41.y + 2 * state.linearVelocity.intensity * Maths.sin(angle + 150);
-        this.material.uniforms.points1.value = vec41;
 
-        const vec42 = new Vector4();
-        vec42.x = x + (length) * Maths.cos(angle - 45);
-        vec42.y = y + (width) * Maths.sin(angle - 45);
-        vec42.z = vec42.x + 2 * state.linearVelocity.intensity * Maths.cos(angle - 150);
-        vec42.w = vec42.y + 2 * state.linearVelocity.intensity * Maths.sin(angle - 150);
-        this.material.uniforms.points2.value = vec42;
 
         const y1 = +y + width * Maths.sin(90);
         const x1 = +x + length * Maths.cos(90);
@@ -101,6 +94,21 @@ export class SeaModel {
         }
 
         model.z = z;
+
+        const angle = this.getSmoothAngle(model, state);
+        if(angle === 500) return;
+        vec41.x = x + (length) * Maths.cos(angle + 45);
+        vec41.y = y + (width) * Maths.sin(angle + 45);
+        vec41.z = vec41.x +  state.linearVelocity.intensity * Maths.cos(angle + 150);
+        vec41.w = vec41.y +  state.linearVelocity.intensity * Maths.sin(angle + 150);
+        this.material.uniforms.points1.value = vec41;
+
+        const vec42 = new Vector4();
+        vec42.x = x + (length) * Maths.cos(angle - 45);
+        vec42.y = y + (width) * Maths.sin(angle - 45);
+        vec42.z = vec42.x +  state.linearVelocity.intensity * Maths.cos(angle - 150);
+        vec42.w = vec42.y +  state.linearVelocity.intensity * Maths.sin(angle - 150);
+        this.material.uniforms.points2.value = vec42;
     }
 
     calcZ(x, y, clk) {
