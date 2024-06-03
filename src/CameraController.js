@@ -6,13 +6,14 @@ export class CameraController{
     camera;
     currentZ = 0;
     currentX = 0;
+    len = 5;
     constructor(camera) {
         this.camera = camera;
     }
 
     update(model){
-        if(this.currentZ > 90) this.currentZ = 90;
-        if(this.currentZ < -30) this.currentZ = -30;
+        if(this.currentZ > 120) this.currentZ = 120;
+        if(this.currentZ < -45) this.currentZ = -45;
         const position = this.getPositionForCamera(model);
         this.camera.position.x = position.x;
         this.camera.position.y = position.y;
@@ -22,9 +23,9 @@ export class CameraController{
 
     getPositionForCamera(model) {
         const position = new Vector3();
-        position.z = model.z + 4 * Maths.sin(this.currentZ/2);
-        position.x = model.x + 5 * Maths.cos(model.zAngle + 180 + this.currentX)
-        position.y = model.y + 5 * Maths.sin(model.zAngle + 180 + this.currentX)
+        position.z = model.z + 4 * Maths.sin(this.currentZ);
+        position.x = model.x + this.len * Maths.cos(model.zAngle + 180 + this.currentX)
+        position.y = model.y + this.len * Maths.sin(model.zAngle + 180 + this.currentX)
         return position;
     }
 

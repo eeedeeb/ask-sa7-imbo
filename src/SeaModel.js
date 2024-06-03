@@ -62,7 +62,7 @@ export class SeaModel {
         this.mesh.rotation.z = Maths.toRad(model.zAngle);
         const length = Constant.boatLength / 4 ;
         const width = Constant.boatWidth / 4 ;
-        const vec41 = new Vector4();
+
 
 
         const y1 = +y + width * Maths.sin(90);
@@ -95,19 +95,21 @@ export class SeaModel {
 
         model.z = z;
 
-        const angle = this.getSmoothAngle(model, state);
-        if(angle === 500) return;
-        vec41.x = x + (length) * Maths.cos(angle + 45);
-        vec41.y = y + (width) * Maths.sin(angle + 45);
-        vec41.z = vec41.x +  state.linearVelocity.intensity * Maths.cos(angle + 150);
-        vec41.w = vec41.y +  state.linearVelocity.intensity * Maths.sin(angle + 150);
-        this.material.uniforms.points1.value = vec41;
-
+        const vec41 = new Vector4();
         const vec42 = new Vector4();
-        vec42.x = x + (length) * Maths.cos(angle - 45);
-        vec42.y = y + (width) * Maths.sin(angle - 45);
-        vec42.z = vec42.x +  state.linearVelocity.intensity * Maths.cos(angle - 150);
-        vec42.w = vec42.y +  state.linearVelocity.intensity * Maths.sin(angle - 150);
+        const angle = this.getSmoothAngle(model, state);
+        if(angle !== 500) {
+            vec41.x = x + (length) * Maths.cos(angle);
+            vec41.y = y + (width) * Maths.sin(angle);
+            vec41.z = vec41.x +  state.linearVelocity.intensity * Maths.cos(angle + 150);
+            vec41.w = vec41.y +  state.linearVelocity.intensity * Maths.sin(angle + 150);
+
+            vec42.x = x + (length) * Maths.cos(angle);
+            vec42.y = y + (width) * Maths.sin(angle);
+            vec42.z = vec42.x +  state.linearVelocity.intensity * Maths.cos(angle - 150);
+            vec42.w = vec42.y +  state.linearVelocity.intensity * Maths.sin(angle - 150);
+        }
+        this.material.uniforms.points1.value = vec41;
         this.material.uniforms.points2.value = vec42;
     }
 
