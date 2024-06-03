@@ -41,6 +41,9 @@ export class Controller {
         const camera = gui.addFolder('camera');
         camera.add(this.attributes, 'position', ["First Person", "Third Person"]).onChange(function (value){
             CameraController.position = value;
+            CameraController.len = 5;
+            CameraController.currentZ = 0;
+            CameraController.currentX = 0;
         });
         gui.open();
     }

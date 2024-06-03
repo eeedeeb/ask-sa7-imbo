@@ -3,14 +3,9 @@ import * as THREE from "three";
 import { World } from "./World";
 import {
 	AmbientLight,
-	BufferGeometry,
 	DirectionalLight,
-	Line,
-	LineBasicMaterial,
-	Vector3,
 } from "three";
 import { Controller } from "./Controller";
-import { Maths } from "./Math";
 import { CameraController } from "./CameraController";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";
 
@@ -26,14 +21,14 @@ const scene = new THREE.Scene();
 const loader = new RGBELoader();
 loader.setDataType(THREE.UnsignedByteType); // Set the data type
 loader.load(
-	"kloofendal_48d_partly_cloudy_puresky_1k.hdr",
+	"kloofendal_43d_clear_puresky_2k.hdr",
 	function (texture) {
 		console.log(texture);
 
 		texture.mapping = THREE.EquirectangularReflectionMapping;
 		scene.background = texture;
 		scene.environment = texture;
-		
+
 	},
 	() => {
 		console.log("in progses");
@@ -50,9 +45,8 @@ const camera = new THREE.PerspectiveCamera(
 	75,
 	size.width / size.height,
 	0.1,
-	200
+	100
 );
-camera.position.y = 4;
 //render
 
 const canvas = document.querySelector(".webgl");
@@ -73,9 +67,7 @@ const resize = function () {
 	camera.updateProjectionMatrix();
 	renderer.setSize(size.width, size.height);
 };
-camera.up.z = 1;
-camera.up.x = 0;
-camera.up.y = 0;
+
 scene.add(camera);
 const world = new World();
 await world.init(scene);
@@ -92,8 +84,8 @@ const lightAmb = new AmbientLight(0xffffff, 0.08);
 scene.add(lightAmb);
 
 const light = new DirectionalLight(0xffdd99, 1.5);
-light.position.x = 20;
-light.position.y = 20;
+light.position.x = -20;
+light.position.y = -20;
 light.position.z = 20;
 light.castShadow = true;
 scene.add(light);
@@ -103,17 +95,17 @@ let lastY = 0;
 
 canvas.addEventListener("mousemove", function (evt) {
 	if (evt.buttons === 1) {
-		cameraController.currentX -= evt.x - lastX;
-		cameraController.currentZ += evt.y - lastY;
+		CameraController.currentX -= evt.x - lastX;
+		CameraController.currentZ += evt.y - lastY;
 	}
 	lastX = evt.x;
 	lastY = evt.y;
 });
 canvas.addEventListener("wheel", function (evt) {
 	if (evt.deltaY > 0) {
-		cameraController.len *= 1.1;
+		CameraController.len *= 1.1;
 	} else if (evt.deltaY < 0) {
-		cameraController.len /= 1.1;
+		CameraController.len /= 1.1;
 	}
 });
 
@@ -126,7 +118,7 @@ const tick = () => {
 	const angle =
 		-Controller.attributes.windAngle +
 		world.boatModel.zAngle +
-		cameraController.currentX;
+		CameraController.currentX;
 	document.getElementById("true-wind").style.transform = `rotate(${angle}deg)`;
 	document.getElementById(
 		"velocity"

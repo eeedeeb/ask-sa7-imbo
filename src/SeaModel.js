@@ -110,8 +110,8 @@ export class SeaModel {
             vec41.z = vec41.x +  state.linearVelocity.intensity * Maths.cos(angle + 150);
             vec41.w = vec41.y +  state.linearVelocity.intensity * Maths.sin(angle + 150);
 
-            vec42.x = x + (length) * Maths.cos(angle);
-            vec42.y = y + (width) * Maths.sin(angle);
+            vec42.x = vec41.x;
+            vec42.y = vec41.y;
             vec42.z = vec42.x +  state.linearVelocity.intensity * Maths.cos(angle - 150);
             vec42.w = vec42.y +  state.linearVelocity.intensity * Maths.sin(angle - 150);
         }
