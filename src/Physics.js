@@ -35,8 +35,6 @@ export class Physics {
 
     calcRudderLiftForce() {
         this.rudderLiftForce.calcForceIntensity(Constant.rudderLiftCoef, Constant.waterRho, this.state.linearVelocity.intensity, Constant.rudderArea);
-        //this.rudderLiftForce.angle = 0;
-        //console.log(this.rudderLiftForce.intensity);
     }
 
     calcRudderDragForce() {
@@ -180,10 +178,8 @@ export class Physics {
         this.calcFDWind();
         this.calcFLWind();
         this.calcTotalHullResistance();
-        //this.calcRudderLiftForce();
         this.calcRudderTorque();
         this.calcHullResistanceTorque();
-        //console.log(this.windLiftForce.intensity);
         this.segmaForces = Force.calcSegma([
             this.waterLiftForce,
             this.waterDragForce,
@@ -202,14 +198,7 @@ export class Physics {
             this.state.linearVelocity,
             acc,
         ]);
-
-        
-        this.state.angularVelocity = Force.calcSegma([
-            this.state.angularVelocity,
-            angacc,
-        ]);
-        //console.log(this.windLiftForce.intensity);
-        //this.state.angularVelocity.intensity = this.clacAngleOfRotation();
+        this.state.angularVelocity.intensity = this.clacAngleOfRotation();
         console.log(this.state.angularVelocity.intensity);
         return this.state;
     }

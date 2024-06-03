@@ -11,6 +11,6 @@ export class State {
         this.angularVelocity = ang;
     }
     static initState() {
-        return new State(Force.initForce(), Torque.initTorque());
+        return new State(Force.initForce(), Force.initForce());
     }
 }
