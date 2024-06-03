@@ -15,6 +15,7 @@ export class SeaModel {
         surface: '#9bd8ff',
         depth: '#186691',
     }
+    //! make 300 -> 1000
     geometry = new Three.PlaneBufferGeometry(40, 40, 1000, 1000);
     material = new Three.ShaderMaterial({
         vertexShader: vertexShader,

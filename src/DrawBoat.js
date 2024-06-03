@@ -19,12 +19,14 @@ export class DrawBoat {
 		// const gltfLoader = new GLTFLoader();
 		const loader = new GLTFLoader();
 		const gltf = await loader.loadAsync("sailboat.glb"); 
-		gltf.scene.traverse(function (child) {
-			if (child.isMesh) {
-				child.castShadow = false; // The boat itself shouldn't cast shadows
-				child.receiveShadow = true; // But it should receive shadows
+		gltf.scene.traverse((node) => {
+			if (node.isMesh) {
+			  node.material.reflectivity = 1; // Enable reflections
+			  node.material.refractionRatio = 0.98; // Adjust refraction ratio if necessary
+			  node.castShadow = true; // Ensure the mesh casts shadows
+			  node.receiveShadow = true; // Ensure the mesh receives shadows
 			}
-		});
+		  });
 		this.boatMesh = gltf.scene.children[0];
 		this.sail = new BoxGeometry(3, 0.05, 4);
 		this.sailMesh = new Three.Mesh(this.sail, this.sailMat);

@@ -21,16 +21,19 @@ const size = {
 //scheme
 const scene = new THREE.Scene();
 
+// hdri
+
 const loader = new RGBELoader();
 loader.setDataType(THREE.UnsignedByteType); // Set the data type
 loader.load(
-	"kloofendal_43d_clear_puresky_2k.hdr",
+	"kloofendal_48d_partly_cloudy_puresky_1k.hdr",
 	function (texture) {
+		console.log(texture);
+
 		texture.mapping = THREE.EquirectangularReflectionMapping;
 		scene.background = texture;
-	
-		
 		scene.environment = texture;
+		
 	},
 	() => {
 		console.log("in progses");
@@ -39,9 +42,8 @@ loader.load(
 		console.log(error);
 	}
 );
-console.log(scene);
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.7); // Color and intensity
-// scene.add(ambientLight);
+
+// const ambientLight = new THREE.AmbientLight(0xffffff, 0.7); // Color and intensity
 
 //camera
 const camera = new THREE.PerspectiveCamera(
@@ -86,7 +88,15 @@ document.addEventListener("keypress", function (evt) {
 	}
 });
 
+const lightAmb = new AmbientLight(0xffffff, 0.08);
+scene.add(lightAmb);
 
+const light = new DirectionalLight(0xffdd99, 1.5);
+light.position.x = 20;
+light.position.y = 20;
+light.position.z = 20;
+light.castShadow = true;
+scene.add(light);
 
 let lastX = 0;
 let lastY = 0;
