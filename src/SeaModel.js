@@ -1,7 +1,7 @@
 import * as Three from "three";
 import vertexShader from './shaders/vertex.glsl';
 import fragmentShader from './shaders/fragment.glsl'
-import {Clock, Vector4} from "three";
+import {Clock, Mesh, MeshBasicMaterial, Vector4} from "three";
 import {Controller} from "./Controller";
 import {Constant} from "./Constant";
 import {Maths} from "./Math";
@@ -16,6 +16,7 @@ export class SeaModel {
         depth: '#186691',
     }
     geometry = new Three.PlaneBufferGeometry(40, 40, 1000, 1000);
+    geoUnder = new Three.PlaneBufferGeometry(40, 40);
     material = new Three.ShaderMaterial({
         vertexShader: vertexShader,
         fragmentShader: fragmentShader,
@@ -34,9 +35,13 @@ export class SeaModel {
             points2: {value: new Vector4(0, 0, 0, 0)}
         }
     })
+    matUnder = new MeshBasicMaterial({color: 0x186691})
     mesh = new Three.Mesh(this.geometry, this.material);
+    under = new Mesh(this.geoUnder, this.matUnder);
     init(scene) {
         scene.add(this.mesh);
+        // scene.add(this.under);
+        this.under.translateZ(-0.2);
     }
 
     getSmoothAngle(model, state) {
@@ -132,5 +137,7 @@ export class SeaModel {
     moveTo(x, y) {
         this.mesh.position.x = x ;
         this.mesh.position.y = y;
+        this.under.position.x = x ;
+        this.under.position.y = y;
     }
 }

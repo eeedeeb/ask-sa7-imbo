@@ -28,8 +28,6 @@ loader.load(
 	function (texture) {
 		texture.mapping = THREE.EquirectangularReflectionMapping;
 		scene.background = texture;
-	
-		
 		scene.environment = texture;
 	},
 	() => {
@@ -101,13 +99,9 @@ canvas.addEventListener("mousemove", function (evt) {
 });
 canvas.addEventListener("wheel", function (evt) {
 	if (evt.deltaY > 0) {
-		// Scrolled up/backward
-		cameraController.len += 0.1;
-		// Implement your logic for backward movement here
+		cameraController.len *= 1.1;
 	} else if (evt.deltaY < 0) {
-		// Scrolled down/forward
-		cameraController.len -= 0.1;
-		// Implement your logic for forward movement here
+		cameraController.len /= 1.1;
 	}
 });
 

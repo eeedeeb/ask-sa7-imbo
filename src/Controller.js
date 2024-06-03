@@ -1,5 +1,6 @@
 import {GUI} from "dat.gui";
 import {Maths} from "./Math";
+import {CameraController} from "./CameraController";
 
 export class Controller {
 
@@ -9,6 +10,7 @@ export class Controller {
         sailAngle: 0,
         rudderAngle: 0,
         waves: 0,
+        position: "Third Person",
     }
 
     static goalAttributes = {
@@ -36,6 +38,10 @@ export class Controller {
         boat.add(this.goalAttributes, 'rudderAngle').min(-30).max(30).step(1).name('Rudder Angle');
         const wave = gui.addFolder('wave');
         wave.add(this.goalAttributes, 'waves').min(0).max(1).step(0.01).name('Waves Elevation');
+        const camera = gui.addFolder('camera');
+        camera.add(this.attributes, 'position', ["First Person", "Third Person"]).onChange(function (value){
+            CameraController.position = value;
+        });
         gui.open();
     }
 

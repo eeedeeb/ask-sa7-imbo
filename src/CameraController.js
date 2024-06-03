@@ -1,5 +1,6 @@
 import {Vector3} from "three";
 import {Maths} from "./Math";
+import {Controller} from "./Controller";
 
 export class CameraController{
 
@@ -7,11 +8,19 @@ export class CameraController{
     currentZ = 0;
     currentX = 0;
     len = 5;
+    static position;
     constructor(camera) {
         this.camera = camera;
     }
 
     update(model){
+        if(CameraController.position === "Third Person"){
+            this.updateThird(model);
+        }
+
+    }
+
+    updateThird(model){
         if(this.currentZ > 120) this.currentZ = 120;
         if(this.currentZ < -45) this.currentZ = -45;
         const position = this.getPositionForCamera(model);
