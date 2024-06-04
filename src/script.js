@@ -8,6 +8,7 @@ import {
 import { Controller } from "./Controller";
 import { CameraController } from "./CameraController";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";
+import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 
 const size = {
 	width: window.innerWidth,
@@ -89,7 +90,6 @@ light.position.y = -20;
 light.position.z = 20;
 light.castShadow = true;
 scene.add(light);
-
 let lastX = 0;
 let lastY = 0;
 
@@ -108,6 +108,7 @@ canvas.addEventListener("wheel", function (evt) {
 		CameraController.len /= 1.1;
 	}
 });
+
 
 //Animation
 const tick = () => {
