@@ -14,6 +14,7 @@ export class Torque{
     }
 
     calcTorqueIntensity(forceIntensity, distance, clockwise) {
+        this.clockwise = clockwise;
         this.intensity = forceIntensity * distance * (clockwise ? 1 : -1);
         return this;
     }
