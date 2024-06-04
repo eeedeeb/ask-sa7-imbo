@@ -44,7 +44,7 @@ export class CameraController{
 
     getPositionForViewT(model){
         const position = new Vector3();
-        position.z = model.z + 2*Maths.sin(CameraController.currentZ / 2);
+        position.z = model.z + 2*Maths.sin(CameraController.currentZ / 2) + 0;
         position.x = model.x + 4 * Maths.cos(model.zAngle + CameraController.currentX)
         position.y = model.y + 4 * Maths.sin(model.zAngle + CameraController.currentX)
         return position;

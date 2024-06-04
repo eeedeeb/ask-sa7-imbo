@@ -18,27 +18,33 @@ export class DrawBoat {
 		const scale = 0.5;
 		// const gltfLoader = new GLTFLoader();
 		const loader = new GLTFLoader();
-		const gltf = await loader.loadAsync("sailboat.glb");
+		const gltf = await loader.loadAsync("untitled.glb");
 		gltf.scene.traverse((node) => {
 			if (node.isMesh) {
-				node.material.reflectivity = 1; // Enable reflections
-				node.material.refractionRatio = 0.98; // Adjust refraction ratio if necessary
+				node.material.reflectivity = 3; // Enable reflections
+				node.material.refractionRatio = 2; // Adjust refraction ratio if necessary
 				node.castShadow = true; // Ensure the mesh casts shadows
 				node.receiveShadow = true; // Ensure the mesh receives shadows
 			}
 		});
-		this.boatMesh = gltf.scene.children[0];
+		this.cubeMesh = gltf.scene.children[0];
 		this.sailMesh = gltf.scene.children[1];
-		this.boatMesh.scale.set(0.003, 0.003, 0.002);
-		this.boatMesh.rotation.x = 3.14 * 2;
-		this.boatMesh.rotation.z = 3.14 / 2;
+		this.cubeMesh.scale.set(0.003, 0.003, 0.002);
+		this.cubeMesh.rotation.x = 3.14 * 2;
+		this.cubeMesh.rotation.z = 3.14 / 2;
 
-		this.sailMesh.scale.set(0.037, 0.037, 0.037);
-		this.sailMesh.rotation.x = 3.14 /2;
+		this.sailMesh.scale.set(0.05, 0.05, 0.05);
+		this.sailMesh.rotation.x = 3.14 / 2;
+		// this.sailMesh.rotation.y = 3.14 /2;
 		this.sailMesh.position.z = 0.54;
 		this.sailMesh.position.x = 0.41;
 		this.sailMesh.position.y = -0.002;
 
+		const sailAxisHelper = new Three.AxisHelper(10); // Adjust the length as needed
+		sailAxisHelper.position.copy(this.sailMesh.position); // Position the helper at the sail mesh's position
+		sailAxisHelper.position.set(3, 3, 3);
+		this.sailMesh.add(sailAxisHelper); 
+		// scene.add(sailAxisHelper);
 		// this.sailMesh.rotation.y = 3.14 /2;
 		// this.sailMesh.rotateY(3.14 / 2);
 		// this.sailMesh.rotateZ(3.14 / 2);
@@ -92,23 +98,23 @@ export class DrawBoat {
 			Constant.boatWidth * scale,
 			Constant.boatHeight * scale
 		);
-		this.cubeMesh = new Three.Mesh(this.cube, this.cubeMat);
+		// this.cubeMesh = new Three.Mesh(this.cube, this.cubeMat);
 		// this.sailMesh.position.z = 2;
 		this.boat = new Three.Group();
 		// this.boat.add(this.cubeMesh);
-		this.boat.add(this.boatMesh);
+		this.boat.add(this.cubeMesh);
 		this.boat.add(this.sailMesh);
+	
 		// this.boat.add(this.sailMesh);
 		scene.add(this.boat);
 	}
 
 	async run(model) {
-		
-		this.sailMesh.rotation.y = Maths.toRad(Controller.attributes.sailAngle);
+		this.sailMesh.rotation.y = Maths.toRad(90+Controller.attributes.sailAngle);
 
 		this.boat.position.x = model.x;
 		this.boat.position.y = model.y;
-		this.boat.position.z = model.z;
+		this.boat.position.z = model.z-0.1;
 		this.boat.rotation.x = Maths.toRad(model.xAngle);
 		this.boat.rotation.y = Maths.toRad(model.yAngle);
 		this.boat.rotation.z = Maths.toRad(model.zAngle);
