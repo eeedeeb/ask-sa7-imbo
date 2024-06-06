@@ -2,12 +2,15 @@
 {
     margin: 0;
     padding: 0;
+    
 }
 
 html,
 body
 {
     overflow: hidden;
+    
+   
 }
 
 .webgl
@@ -16,6 +19,10 @@ body
     top: 0;
     left: 0;
     outline: none;
+    background: linear-gradient(to bottom, #4ebaf4 0%, #95bef8 10%, #45568a 70%); /* Gradient from light blue to dark blue */
+    background-size: cover;
+    background-repeat: no-repeat;
+    
 }
 
 #velocity{
@@ -27,3 +34,4 @@ body
 svg {
     transform-origin: center center;
 }
+

@@ -106,7 +106,7 @@ export class Physics {
         this.calcViscousResistance();
         this.calcWaveMakingResistance();
         this.calcAirResistance();
-        this.totalHullResistance.intensity = (this.viscousResistance.intensity + this.waveMakingResistance.intensity + this.airResistance.intensity) * 0.04 * this.state.linearVelocity.intensity;
+        this.totalHullResistance.intensity = (this.viscousResistance.intensity + this.waveMakingResistance.intensity + this.airResistance.intensity) / 2;
         this.totalHullResistance.angle = this.state.linearVelocity.angle + 180;
     }
 
@@ -115,7 +115,7 @@ export class Physics {
     }
 
     clacAngleOfRotation() {
-        return (this.rudderTorque.intensity - this.hullTorque.intensity) / Constant.inertia;
+        return 2*(this.rudderTorque.intensity - this.hullTorque.intensity) / Constant.inertia;
     }
 
 
@@ -191,15 +191,12 @@ export class Physics {
 
     getNewState() {
         this.calcSegma();
-        const x = this.clacAngleOfRotation()
         const acc = Force.initForceWith(this.segmaForces.intensity / Constant.boatMass, this.segmaForces.angle)
-        const angacc = Force.initForceWith(x,0)
         this.state.linearVelocity = Force.calcSegma([
             this.state.linearVelocity,
             acc,
         ]);
         this.state.angularVelocity.intensity = this.clacAngleOfRotation();
-        console.log(this.state.angularVelocity.intensity);
         return this.state;
     }
 

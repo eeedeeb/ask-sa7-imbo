@@ -1,6 +1,6 @@
 import * as Three from "three";
 import { Constant } from "./Constant";
-import { BoxGeometry, Vector3 } from "three";
+import {BoxGeometry, Mesh, MeshBasicMaterial, Vector3} from "three";
 import { Maths } from "./Math";
 import { Controller } from "./Controller";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
@@ -14,11 +14,12 @@ export class DrawBoat {
 	sailMesh;
 	boat;
 
+	isLoaded = false;
 	async init(scene) {
 		const scale = 0.5;
 		// const gltfLoader = new GLTFLoader();
 		const loader = new GLTFLoader();
-		const gltf = await loader.loadAsync("sailboat.glb");
+		const gltf = await loader.loadAsync("untitled.glb");
 		gltf.scene.traverse((node) => {
 			if (node.isMesh) {
 				node.material.reflectivity = 1; // Enable reflections
@@ -100,11 +101,14 @@ export class DrawBoat {
 		this.boat.add(this.sailMesh);
 		// this.boat.add(this.sailMesh);
 		scene.add(this.boat);
+		this.isLoaded = true;
 	}
 
 	async run(model) {
-		
-		this.sailMesh.rotation.y = Maths.toRad(Controller.attributes.sailAngle);
+
+		if(!this.isLoaded) return;
+
+		this.sailMesh.rotation.y = Maths.toRad(90+Controller.attributes.sailAngle);
 
 		this.boat.position.x = model.x;
 		this.boat.position.y = model.y;

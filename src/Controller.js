@@ -1,9 +1,11 @@
 import {GUI} from "dat.gui";
 import {Maths} from "./Math";
 import {CameraController} from "./CameraController";
+import {Clock} from "three";
 
 export class Controller {
 
+    static clock = new Clock();
     static attributes = {
         windSpeed: 0,
         windAngle: 0,
@@ -22,7 +24,7 @@ export class Controller {
     }
 
     static steps = {
-        waves: 0.001,
+        waves: 0.1,
         sailAngle: 1,
         rudderAngle: 1,
         windSpeed: 0.5,

@@ -1,21 +1,44 @@
 import * as Three from "three";
 import vertexShader from './shaders/vertex.glsl';
 import fragmentShader from './shaders/fragment.glsl'
-import {Clock, Mesh, MeshBasicMaterial, Vector4} from "three";
+import {Mesh, MeshBasicMaterial, Vector4} from "three";
 import {Controller} from "./Controller";
 import {Constant} from "./Constant";
 import {Maths} from "./Math";
 
 
-export class SeaModel {
-    lastX = 0;
-    lastY = 0;
-    clock = new Clock();
-    color = {
-        surface: '#9bd8ff',
-        depth: '#186691',
+class KalmanFilter {
+    constructor(R, Q, A, B, C) {
+        this.R = R;
+        this.Q = Q;
+        this.A = A;
+        this.B = B;
+        this.C = C;
+        this.cov = NaN;
+        this.x = NaN;
     }
-    //! make 300 -> 1000
+
+    filter(z, u) {
+        if (isNaN(this.x)) {
+            this.x = (1 / this.C) * z;
+            this.cov = (1 / this.C) * this.R * (1 / this.C);
+        } else {
+            const predX = (this.A * this.x) + (this.B * u);
+            const predCov = ((this.A * this.cov) * this.A) + this.Q;
+            const K = predCov * this.C * (1 / ((this.C * predCov * this.C) + this.R));
+            this.x = predX + K * (z - (this.C * predX));
+            this.cov = predCov - (K * this.C * predCov);
+        }
+
+        return this.x;
+    }
+}
+
+export class SeaModel {
+    color = {
+        surface: '#a8d1ee',
+        depth: '#4a7b98',
+    }
     geometry = new Three.PlaneBufferGeometry(40, 40, 1000, 1000);
     geoUnder = new Three.PlaneBufferGeometry(40, 40);
     material = new Three.ShaderMaterial({
@@ -31,7 +54,7 @@ export class SeaModel {
             uSurfaceColor: {value: new Three.Color(this.color.surface)},
             uDepthColor: {value: new Three.Color(this.color.depth)},
             uColorOffset: {value: 1},
-            uColorMultiply: {value: 0.2},
+            uColorMultiply: {value: 0.5},
             points1: {value: new Vector4(0, 0, 0, 0)},
             points2: {value: new Vector4(0, 0, 0, 0)}
         }
@@ -45,21 +68,45 @@ export class SeaModel {
         this.under.translateZ(-0.2);
     }
 
-    getSmoothAngle(model, state) {
-        const angle1 = Maths.fix(model.zAngle);
-        const angle2 = Maths.fix(state.linearVelocity.angle);
-        const diff = Maths.differance(angle1, angle2);
-       if(diff <= 30){
-           return angle1;
-       }
-        if(diff <= 210 && diff >= 120){
-            return angle1 + 180;
-        }
-        return 500;
+    kfX = new KalmanFilter(1, 0.01, 1, 0, 1);
+    kfY = new KalmanFilter(1, 0.01, 1, 0, 1);
+
+    angleToCartesian(angle) {
+        return {
+            x: Math.cos(angle * Math.PI / 180),
+            y: Math.sin(angle * Math.PI / 180),
+        };
+    }
+
+    cartesianToAngle(x, y) {
+        return Math.atan2(y, x) * 180 / Math.PI;
+    }
+    getSmoothAngle(state) {
+        const { x, y } = this.angleToCartesian(state.linearVelocity.angle);
+        const filteredX = this.kfX.filter(x, 0);
+        const filteredY = this.kfY.filter(y, 0);
+        return this.cartesianToAngle(filteredX, filteredY);
+    }
+
+    calculateIntersection(a, b, theta) {
+        const thetaRad = theta * Math.PI / 180;
+
+        const cosTheta = Math.cos(thetaRad);
+        const sinTheta = Math.sin(thetaRad);
+        const xIntersection = Math.sqrt(1 / ((cosTheta ** 2 / a ** 2) + (sinTheta ** 2 / b ** 2)));
+
+        const yIntersection = Math.sqrt(1 / ((sinTheta ** 2 / a ** 2) + (cosTheta ** 2 / b ** 2)));
+
+        return {
+            xPositive: xIntersection,
+            xNegative: -xIntersection,
+            yPositive: yIntersection,
+            yNegative: -yIntersection
+        };
     }
 
     run(model, state) {
-        const clk = this.clock.getElapsedTime();
+        const clk = Controller.clock.getElapsedTime();
         this.material.uniforms.uTime.value = clk;
         this.material.uniforms.uWaveElevation.value = Controller.attributes.waves;
         const x = model.x;
@@ -68,19 +115,15 @@ export class SeaModel {
         this.mesh.rotation.z = Maths.toRad(model.zAngle);
         const length = Constant.boatLength / 4 ;
         const width = Constant.boatWidth / 4 ;
-
-
-
-        const y1 = +y + width * Maths.sin(90);
-        const x1 = +x + length * Maths.cos(90);
-        const y2 = +y + width * Maths.sin(-90);
-        const x2 = +x + length * Maths.cos(-90);
-
-        const y3 = +y + width * Maths.sin(0);
-        const x3 = +x + length * Maths.cos(0);
-        const y4 = +y + width * Maths.sin(180);
-        const x4 = +x + length * Maths.cos(180);
-
+        const Intersection = this.calculateIntersection(length, width, model.zAngle);
+        const y1 = +y + Intersection.yPositive;
+        const x1 = +x;
+        const y2 = +y + Intersection.yNegative;
+        const x2 = +x;
+        const y3 = +y;
+        const x3 = +x + Intersection.xPositive;
+        const y4 = +y ;
+        const x4 = +x + Intersection.xNegative;
         const z = this.calcZ(x, y, clk);
         const z1 = this.calcZ(x1, y1, clk);
         const z2 = this.calcZ(x2, y2, clk);
@@ -98,23 +141,24 @@ export class SeaModel {
         } else {
             model.yAngle = -yAngle;
         }
-
         model.z = z;
 
+        this.makeWaves(Intersection, state, x, y);
+    }
+
+    makeWaves(Intersection, state, x, y){
         const vec41 = new Vector4();
         const vec42 = new Vector4();
-        const angle = this.getSmoothAngle(model, state);
-        if(angle !== 500) {
-            vec41.x = x + (length) * Maths.cos(angle);
-            vec41.y = y + (width) * Maths.sin(angle);
-            vec41.z = vec41.x +  state.linearVelocity.intensity * Maths.cos(angle + 150);
-            vec41.w = vec41.y +  state.linearVelocity.intensity * Maths.sin(angle + 150);
+        const angle = this.getSmoothAngle(state);
+        vec41.x = x + (Intersection.xPositive) * Maths.cos(angle);
+        vec41.y = y + (Intersection.yPositive) * Maths.sin(angle);
+        vec41.z = vec41.x +  state.linearVelocity.intensity * Maths.cos(angle + 150);
+        vec41.w = vec41.y +  state.linearVelocity.intensity * Maths.sin(angle + 150);
 
-            vec42.x = vec41.x;
-            vec42.y = vec41.y;
-            vec42.z = vec42.x +  state.linearVelocity.intensity * Maths.cos(angle - 150);
-            vec42.w = vec42.y +  state.linearVelocity.intensity * Maths.sin(angle - 150);
-        }
+        vec42.x = vec41.x;
+        vec42.y = vec41.y;
+        vec42.z = vec42.x +  state.linearVelocity.intensity * Maths.cos(angle - 150);
+        vec42.w = vec42.y +  state.linearVelocity.intensity * Maths.sin(angle - 150);
         this.material.uniforms.points1.value = vec41;
         this.material.uniforms.points2.value = vec42;
     }
@@ -122,18 +166,29 @@ export class SeaModel {
     calcZ(x, y, clk) {
         const fY = this.material.uniforms.uFrequencyY.value;
         const fX = this.material.uniforms.uFrequencyX.value;
-        let z = (
-                Math.sin((y * fY - x * fX + clk) * 0.7)
-                + Math.sin((y * fY + x * fX * 2 + clk)* 0.7)
-                + Math.cos((x * fX / 2 + clk)* 0.7)
-            )
-            * this.material.uniforms.uWaveElevation.value
-            - 0.07;
-        if (z < 0) {
-            z = z / 2;
+        const waveElevation = this.material.uniforms.uWaveElevation.value;
+
+        function wave(pos, frequency, phase, amplitude) {
+            let waveX = Math.sin(pos[0] * frequency + clk * 0.5 * phase) * amplitude;
+            let waveY = Math.cos(pos[1] * frequency + clk * 0.5 * phase) * amplitude * 0.5;
+            return [waveX, waveY];
         }
+
+        const pos = [x, y];
+        const wave1 = wave(pos, fX, 0.5, waveElevation);
+        const wave2 = wave(pos, fY, 1.0, waveElevation * 0.5);
+        const wave3 = wave(pos, fX * 2.0, 1.5, waveElevation * 0.25);
+        const wave4 = wave(pos, fY * 0.5, 2.0, waveElevation * 0.75);
+
+        let z = wave1[0] + wave2[0] + wave3[0] + wave4[0] + wave1[1] + wave2[1] + wave3[1] + wave4[1];
+
+        if (z < 0) {
+            z /= 2;
+        }
+
         return z;
     }
+
 
     moveTo(x, y) {
         this.mesh.position.x = x ;
