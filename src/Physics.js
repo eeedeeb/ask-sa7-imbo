@@ -120,11 +120,11 @@ export class Physics {
 
 
     getAngleOfAttackInSail() {
-        return Math.round(Maths.fix180(this.apparentWind.angle - (Controller.attributes.sailAngle + this.model.zAngle)));
+        return Math.round(Maths.fix180(this.apparentWind.angle - (Controller.attributes.sailAngle + this.model.yAngle)));
     }
 
     getAngleOfAttackInKeel() {
-        return Math.round(Maths.fix180(this.model.zAngle - this.state.linearVelocity.angle - 180));
+        return Math.round(Maths.fix180(this.model.yAngle - this.state.linearVelocity.angle - 180));
     }
 
     getDirectionForLift(angleOfForce, angle) {
@@ -145,7 +145,7 @@ export class Physics {
     calcFLWind() {
         const cl = Math.abs(Constant.cl[this.getAngleOfAttackInSail()]);
         this.windLiftForce.calcForceIntensity(cl, Constant.airRho, this.apparentWind.intensity, Constant.sailArea);
-        if (this.getDirectionForLift(this.apparentWind.angle, Controller.attributes.sailAngle + this.model.zAngle)) {
+        if (this.getDirectionForLift(this.apparentWind.angle, Controller.attributes.sailAngle + this.model.yAngle)) {
             this.windLiftForce.angle = Maths.fix(this.apparentWind.angle + 90);
         } else {
             this.windLiftForce.angle = Maths.fix(this.apparentWind.angle - 90);
@@ -161,7 +161,7 @@ export class Physics {
     calcFLWater() {
         const cl = Math.abs(Constant.cl[this.getAngleOfAttackInKeel()] / 10);
         this.waterLiftForce.calcForceIntensity(cl, Constant.waterRho, this.state.linearVelocity.intensity, Constant.keelArea);
-        if (this.getDirectionForLift(this.state.linearVelocity.angle + 180, this.model.zAngle)) {
+        if (this.getDirectionForLift(this.state.linearVelocity.angle + 180, this.model.yAngle)) {
             this.waterLiftForce.angle = Maths.fix(this.state.linearVelocity.angle - 90);
         } else {
             this.waterLiftForce.angle = Maths.fix(this.state.linearVelocity.angle + 90);

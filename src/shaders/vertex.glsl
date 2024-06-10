@@ -1,6 +1,6 @@
 uniform float uWaveElevation;
-uniform float uFrequencyY;
 uniform float uFrequencyX;
+uniform float uFrequencyZ;
 uniform float uTime;
 uniform vec4 points1;
 uniform vec4 points2;
@@ -98,12 +98,12 @@ vec2 wave(vec2 pos, float frequency, float phase, float amplitude) {
 void main(){
     vec4 modelVec =  modelMatrix * vec4(position, 1.0);
 
-    vec2 pos = modelVec.xy;
+    vec2 pos = modelVec.zx;
 
-    vec2 wave1 = wave(pos, uFrequencyX, 0.5, uWaveElevation);
-    vec2 wave2 = wave(pos, uFrequencyY, 1.0, uWaveElevation * 0.5);
-    vec2 wave3 = wave(pos, uFrequencyX * 2.0, 1.5, uWaveElevation * 0.25);
-    vec2 wave4 = wave(pos, uFrequencyY * 0.5, 2.0, uWaveElevation * 0.75);
+    vec2 wave1 = wave(pos, uFrequencyZ, 0.5, uWaveElevation);
+    vec2 wave2 = wave(pos, uFrequencyX, 1.0, uWaveElevation * 0.5);
+    vec2 wave3 = wave(pos, uFrequencyZ * 2.0, 1.5, uWaveElevation * 0.25);
+    vec2 wave4 = wave(pos, uFrequencyX * 0.5, 2.0, uWaveElevation * 0.75);
 
     float elevation = wave1.x + wave2.x + wave3.x + wave4.x + wave1.y + wave2.y + wave3.y + wave4.y;
 
@@ -114,19 +114,19 @@ void main(){
 
     float ev = 0.0;
     for(float i = 1.0; i <= 3.0; i++)
-        ev = abs(cnoise(vec3(modelVec.xy * 2.0 * i, uTime)) * 0.2 / i);
+        ev = abs(cnoise(vec3(modelVec.zx * 2.0 * i, uTime)) * 0.2 / i);
     elevation -= ev;
-    float dis11 = dis(points1.x, points1.y, modelVec.x, modelVec.y);
-    float dis1 = abs(dis(points1.x, points1.y, points1.z, points1.w) - (dis(modelVec.x, modelVec.y, points1.z, points1.w) + dis11));
+    float dis11 = dis(points1.x, points1.y, modelVec.z, modelVec.x);
+    float dis1 = abs(dis(points1.x, points1.y, points1.z, points1.w) - (dis(modelVec.z, modelVec.x, points1.z, points1.w) + dis11));
     if(almost(dis1)){
         elevation += 0.15 - 2.0*dis1;
     }
-    float dis22 = dis(points2.x, points2.y, modelVec.x, modelVec.y);
-    float dis2 = abs(dis(points2.x, points2.y, points2.z, points2.w) - (dis(modelVec.x, modelVec.y, points2.z, points2.w) + dis22));
+    float dis22 = dis(points2.x, points2.y, modelVec.z, modelVec.x);
+    float dis2 = abs(dis(points2.x, points2.y, points2.z, points2.w) - (dis(modelVec.z, modelVec.x, points2.z, points2.w) + dis22));
     if(almost(dis2)){
         elevation += 0.15 - 2.0*dis2 ;
     }
-    modelVec.z += elevation;
+    modelVec.y += elevation;
     gl_Position = projectionMatrix * viewMatrix * modelVec;
 
     vElevation1 = ev;

@@ -35,13 +35,13 @@ class KalmanFilter {
 }
 
 export class SeaModel {
-    color = {
+    static color = {
         surface: '#a8d1ee',
         depth: '#4a7b98',
     }
-    geometry = new Three.PlaneBufferGeometry(40, 40, 1000, 1000);
+    static geometry = new Three.PlaneBufferGeometry(40, 40, 1000, 1000);
     geoUnder = new Three.PlaneBufferGeometry(40, 40);
-    material = new Three.ShaderMaterial({
+    static material = new Three.ShaderMaterial({
         vertexShader: vertexShader,
         fragmentShader: fragmentShader,
         side: Three.DoubleSide,
@@ -49,10 +49,10 @@ export class SeaModel {
         uniforms: {
             uTime: {value: 0},
             uWaveElevation: {value: 1},
-            uFrequencyY: {value: 0.3},
-            uFrequencyX: {value: 0.1},
-            uSurfaceColor: {value: new Three.Color(this.color.surface)},
-            uDepthColor: {value: new Three.Color(this.color.depth)},
+            uFrequencyX: {value: 0.3},
+            uFrequencyZ: {value: 0.1},
+            uSurfaceColor: {value: new Three.Color(SeaModel.color.surface)},
+            uDepthColor: {value: new Three.Color(SeaModel.color.depth)},
             uColorOffset: {value: 1},
             uColorMultiply: {value: 0.5},
             points1: {value: new Vector4(0, 0, 0, 0)},
@@ -60,12 +60,13 @@ export class SeaModel {
         }
     })
     matUnder = new MeshBasicMaterial({color: 0x186691})
-    mesh = new Three.Mesh(this.geometry, this.material);
+    mesh = new Three.Mesh(SeaModel.geometry, SeaModel.material);
     under = new Mesh(this.geoUnder, this.matUnder);
     init(scene) {
+        this.mesh.rotation.x = Math.PI / 2;
         scene.add(this.mesh);
         // scene.add(this.under);
-        this.under.translateZ(-0.2);
+        // this.under.translateZ(-0.2);
     }
 
     kfX = new KalmanFilter(1, 0.01, 1, 0, 1);
@@ -107,51 +108,55 @@ export class SeaModel {
 
     run(model, state) {
         const clk = Controller.clock.getElapsedTime();
-        this.material.uniforms.uTime.value = clk;
-        this.material.uniforms.uWaveElevation.value = Controller.attributes.waves;
+        SeaModel.material.uniforms.uTime.value = clk;
+        SeaModel.material.uniforms.uWaveElevation.value = Controller.attributes.waves;
+        const z = model.z;
         const x = model.x;
-        const y = model.y;
-        this.moveTo(x, y);
-        this.mesh.rotation.z = Maths.toRad(model.zAngle);
+        this.moveTo(z, x);
+        this.mesh.rotation.z = - Maths.toRad(model.yAngle);
         const length = Constant.boatLength / 4 ;
         const width = Constant.boatWidth / 4 ;
-        const Intersection = this.calculateIntersection(length, width, model.zAngle);
-        const y1 = +y + Intersection.yPositive;
-        const x1 = +x;
-        const y2 = +y + Intersection.yNegative;
-        const x2 = +x;
-        const y3 = +y;
-        const x3 = +x + Intersection.xPositive;
-        const y4 = +y ;
-        const x4 = +x + Intersection.xNegative;
-        const z = this.calcZ(x, y, clk);
-        const z1 = this.calcZ(x1, y1, clk);
-        const z2 = this.calcZ(x2, y2, clk);
-        const z3 = this.calcZ(x3, y3, clk);
-        const z4 = this.calcZ(x4, y4, clk);
-        const xAngle = Maths.toDeg(Math.asin(Math.abs(z1 - z2) / Math.sqrt((z1 - z2) * (z1 - z2) + width * width)));
-        if (z1 > z2) {
-            model.xAngle = +xAngle;
+        const Intersection = this.calculateIntersection(length, width, model.yAngle);
+        const x1 = +x + Intersection.yPositive;
+        const z1 = +z;
+        const x2 = +x + Intersection.yNegative;
+        const z2 = +z;
+        const x3 = +x;
+        const z3 = +z + Intersection.xPositive;
+        const x4 = +x ;
+        const z4 = +z + Intersection.xNegative;
+        const y = SeaModel.calcY(z, x, clk);
+        const y1 = SeaModel.calcY(z1, x1, clk);
+        const y2 = SeaModel.calcY(z2, x2, clk);
+        const y3 = SeaModel.calcY(z3, x3, clk);
+        const y4 = SeaModel.calcY(z4, x4, clk);
+        const deltaY12 = Math.abs(y1 - y2);
+        const zAngle = Maths.toDeg(Math.asin( deltaY12/ Math.sqrt(deltaY12*deltaY12 + Intersection.yPositive * Intersection.yPositive * 4)));
+        if (y1 > y2) {
+            model.zAngle = +zAngle;
+        } else {
+            model.zAngle = -zAngle;
+        }
+        const deltaY34 = Math.abs(y3 - y4);
+
+
+        let xAngle = Maths.toDeg(Math.asin(deltaY34 / Math.sqrt(deltaY34 * deltaY34 +Intersection.xPositive * Intersection.xPositive * 4)));
+        if (y3 < y4) {
+            model.xAngle = xAngle;
         } else {
             model.xAngle = -xAngle;
         }
-        let yAngle = Maths.toDeg(Math.asin(Math.abs(z4 - z3) / Math.sqrt((z4 - z3) * (z4 - z3) + length * length)));
-        if (z3 < z4) {
-            model.yAngle = yAngle;
-        } else {
-            model.yAngle = -yAngle;
-        }
-        model.z = z;
+        model.y = y;
 
-        this.makeWaves(Intersection, state, x, y);
+        this.makeWaves(Intersection, state, z, x);
     }
 
-    makeWaves(Intersection, state, x, y){
+    makeWaves(Intersection, state, z, x){
         const vec41 = new Vector4();
         const vec42 = new Vector4();
         const angle = this.getSmoothAngle(state);
-        vec41.x = x + (Intersection.xPositive) * Maths.cos(angle);
-        vec41.y = y + (Intersection.yPositive) * Maths.sin(angle);
+        vec41.x = z + (Intersection.xPositive) * Maths.cos(angle);
+        vec41.y = x + (Intersection.yPositive) * Maths.sin(angle);
         vec41.z = vec41.x +  state.linearVelocity.intensity * Maths.cos(angle + 150);
         vec41.w = vec41.y +  state.linearVelocity.intensity * Maths.sin(angle + 150);
 
@@ -159,14 +164,14 @@ export class SeaModel {
         vec42.y = vec41.y;
         vec42.z = vec42.x +  state.linearVelocity.intensity * Maths.cos(angle - 150);
         vec42.w = vec42.y +  state.linearVelocity.intensity * Maths.sin(angle - 150);
-        this.material.uniforms.points1.value = vec41;
-        this.material.uniforms.points2.value = vec42;
+        SeaModel.material.uniforms.points1.value = vec41;
+        SeaModel.material.uniforms.points2.value = vec42;
     }
 
-    calcZ(x, y, clk) {
-        const fY = this.material.uniforms.uFrequencyY.value;
-        const fX = this.material.uniforms.uFrequencyX.value;
-        const waveElevation = this.material.uniforms.uWaveElevation.value;
+     static calcY(z, x, clk) {
+        const fX = SeaModel.material.uniforms.uFrequencyX.value;
+        const fZ = SeaModel.material.uniforms.uFrequencyZ.value;
+        const waveElevation = SeaModel.material.uniforms.uWaveElevation.value;
 
         function wave(pos, frequency, phase, amplitude) {
             let waveX = Math.sin(pos[0] * frequency + clk * 0.5 * phase) * amplitude;
@@ -174,26 +179,26 @@ export class SeaModel {
             return [waveX, waveY];
         }
 
-        const pos = [x, y];
-        const wave1 = wave(pos, fX, 0.5, waveElevation);
-        const wave2 = wave(pos, fY, 1.0, waveElevation * 0.5);
-        const wave3 = wave(pos, fX * 2.0, 1.5, waveElevation * 0.25);
-        const wave4 = wave(pos, fY * 0.5, 2.0, waveElevation * 0.75);
+        const pos = [z, x];
+        const wave1 = wave(pos, fZ, 0.5, waveElevation);
+        const wave2 = wave(pos, fX, 1.0, waveElevation * 0.5);
+        const wave3 = wave(pos, fZ * 2.0, 1.5, waveElevation * 0.25);
+        const wave4 = wave(pos, fX * 0.5, 2.0, waveElevation * 0.75);
 
-        let z = wave1[0] + wave2[0] + wave3[0] + wave4[0] + wave1[1] + wave2[1] + wave3[1] + wave4[1];
+        let y = wave1[0] + wave2[0] + wave3[0] + wave4[0] + wave1[1] + wave2[1] + wave3[1] + wave4[1];
 
-        if (z < 0) {
-            z /= 2;
+        if (y < 0) {
+            y /= 2;
         }
 
-        return z;
+        return y;
     }
 
 
-    moveTo(x, y) {
-        this.mesh.position.x = x ;
-        this.mesh.position.y = y;
-        this.under.position.x = x ;
-        this.under.position.y = y;
+    moveTo(z, x) {
+        this.mesh.position.z = z ;
+        this.mesh.position.x = x;
+        // this.under.position.x = x ;
+        // this.under.position.y = y;
     }
 }

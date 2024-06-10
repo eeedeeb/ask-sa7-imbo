@@ -1,12 +1,13 @@
-import {BoxGeometry, Clock, Mesh, MeshBasicMaterial, Vector3} from "three";
+import {Vector3} from "three";
 import {Maths} from "./Math";
 import {Controller} from "./Controller";
+import {SeaModel} from "./SeaModel";
 
 export class CameraController{
 
     camera;
+    static currentY = 0;
     static currentZ = 0;
-    static currentX = 0;
     static len = 5;
     static position = "Third Person";
     constructor(camera) {
@@ -14,16 +15,16 @@ export class CameraController{
     }
 
     update(model){
-        if(CameraController.currentZ > 120) CameraController.currentZ = 120;
-        if(CameraController.currentZ < -120) CameraController.currentZ = -120;
+        if(CameraController.currentY > 120) CameraController.currentY = 120;
+        if(CameraController.currentY < -120) CameraController.currentY = -120;
         let position;
         let view;
         if(CameraController.position === "Third Person"){
             position = this.getPositionForCameraT(model);
             view = this.getPositionForViewT(model);
-            this.camera.up.z = 1;
+            this.camera.up.y = 1;
+            this.camera.up.z = 0;
             this.camera.up.x = 0;
-            this.camera.up.y = 0;
         }else{
             position = this.getPositionForCameraF(model);
             view = this.getPositionForViewF(position);
@@ -36,46 +37,38 @@ export class CameraController{
 
     getPositionForCameraT(model) {
         const position = new Vector3();
-        position.z = model.z + 4 * Maths.sin(CameraController.currentZ) + 2;
-        position.x = model.x + CameraController.len * Maths.cos(model.zAngle + 180 + CameraController.currentX)
-        position.y = model.y + CameraController.len * Maths.sin(model.zAngle + 180 + CameraController.currentX)
+        position.y = model.y + 4 * Maths.sin(CameraController.currentY) + 2;
+        position.z = model.z + CameraController.len * Maths.cos(model.yAngle + 180 + CameraController.currentZ)
+        position.x = model.x + CameraController.len * Maths.sin(model.yAngle + 180 + CameraController.currentZ)
         return position;
     }
 
     getPositionForViewT(model){
         const position = new Vector3();
-        position.z = model.z + 2 * Maths.sin(CameraController.currentZ / 2);
-        position.x = model.x + 4 * Maths.cos(model.zAngle + CameraController.currentX)
-        position.y = model.y + 4 * Maths.sin(model.zAngle + CameraController.currentX)
+        position.y = model.y + 2 * Maths.sin(CameraController.currentY / 2);
+        position.z = model.z + 4 * Maths.cos(model.yAngle + CameraController.currentZ)
+        position.x = model.x + 4 * Maths.sin(model.yAngle + CameraController.currentZ)
         return position;
     }
 
      getPositionForCameraF(model) {
         const position = new Vector3();
-        position.x = model.x + 2 * Maths.cos(model.zAngle + 180);
-        position.y = model.y + 2 * Maths.sin(model.zAngle + 180);
-        const fY = 0.3;
-        const fX = 0.1;
+        position.z = model.z + 2 * Maths.cos(model.yAngle + 180);
+        position.x = model.x + 2 * Maths.sin(model.yAngle + 180);
+        const fX = 0.3;
+        const fZ = 0.1;
         const clk = Controller.clock.getElapsedTime();
-        let z = (
-                 Math.sin((position.y * fY - position.x * fX + clk) * 0.7)
-                 + Math.sin((position.y * fY + position.x * fX * 2 + clk)* 0.7)
-                 + Math.cos((position.x * fX / 2 + clk)* 0.7)
-             )
-             * Controller.attributes.waves
-             - 0.07;
-         if (z < 0) {
-             z = z / 2;
-         }
-        position.z = z + 1;
+        let y = SeaModel.calcY(position.z, position.x, clk)
+        position.y = y + 1;
+
         return position;
     }
 
      getPositionForViewF(camera) {
         const position = new Vector3();
-        position.z = camera.z + 2 * Maths.sin(CameraController.currentZ / 2);
-        position.x = camera.x + 4 * Maths.cos( CameraController.currentX)
-        position.y = camera.y + 4 * Maths.sin( CameraController.currentX)
+        position.y = camera.y + 2 * Maths.sin(CameraController.currentY / 2);
+        position.z = camera.z + 4 * Maths.cos( CameraController.currentZ)
+        position.x = camera.x + 4 * Maths.sin( CameraController.currentZ)
         return position;
     }
 }

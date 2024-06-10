@@ -16,10 +16,10 @@ export class Projection{
     }
     getModel() {
         const now = this.clock.getElapsedTime();
-        this.model.x += this.state.linearVelocity.projectOnXAxis() / 2 * (now - this.last);
-        this.model.y += this.state.linearVelocity.projectOnYAxis() / 2 * (now - this.last);
+        this.model.z += this.state.linearVelocity.projectOnXAxis() / 2 * (now - this.last);
+        this.model.x += this.state.linearVelocity.projectOnYAxis() / 2 * (now - this.last);
         
-        this.model.zAngle += Controller.attributes.rudderAngle != 0?this.state.angularVelocity.intensity * (now-this.last): 0;
+        this.model.yAngle += Controller.attributes.rudderAngle !== 0?this.state.angularVelocity.intensity * (now-this.last): 0;
         
         this.last = now;
         return this.model;
