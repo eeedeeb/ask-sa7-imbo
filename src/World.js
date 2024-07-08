@@ -5,6 +5,7 @@ import {SeaModel} from "./SeaModel";
 import {DrawBoat} from "./DrawBoat";
 import {Physics} from "./Physics";
 import {Projection} from "./Projection";
+import {Collision} from "./Collision" //shadi
 
 export class World{
 
@@ -14,6 +15,7 @@ export class World{
     seeModel;
     drawBoat;
     phy;
+    collision; //shadi
     init(scene){
         Controller.init();
         this.boatModel = BoatModel.initModel();
@@ -24,6 +26,7 @@ export class World{
         this.drawBoat.init(scene, this.boatModel);
         this.phy = new Physics();
         this.projection = new Projection();
+	this.collision = new Collision(); //shadi
     }
 
     run(){
@@ -32,6 +35,7 @@ export class World{
         this.state =  this.phy.setState(this.state, this.boatModel).getNewState();
         this.boatModel = this.projection.setState(this.state, this.boatModel).getModel();
         this.drawBoat.run(this.boatModel);
+	this.collision.setModel(this.boatModel, this.state).checkAndCollide(); //shadi
     }
 
 
