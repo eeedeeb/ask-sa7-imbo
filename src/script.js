@@ -58,6 +58,15 @@ const resize = function () {
 	renderer.setSize(size.width, size.height);
 };
 
+//trash
+const geometry = new THREE.BoxBufferGeometry(0.5, 0.5, 0.5);
+const material = new THREE.MeshBasicMaterial({ color: 0x000000 });
+const mesh = new THREE.Mesh(geometry, material);
+mesh.position.x = -4;
+// mesh.position.z = 7;
+scene.add(mesh);
+//
+
 scene.add(camera);
 const world = new World();
 await world.init(scene);
